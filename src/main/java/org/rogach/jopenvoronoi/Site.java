@@ -5,7 +5,7 @@ public abstract class Site {
     /// the HEFace of this Site
     Face face;
     /// equation parameters
-    Eq eq;
+    Eq eq = new Eq();
 
     /// return closest point on site to given point p
     public abstract Point apex_point(Point p);

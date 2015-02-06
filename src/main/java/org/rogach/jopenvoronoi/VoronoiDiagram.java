@@ -31,7 +31,7 @@ public class VoronoiDiagram {
     /// priority_queue for vertex for processing
     // sorted by decreasing fabs() of in_circle-predicate, so that the vertices whose IN/OUT status we are 'most certain' about are processed first
     ///< queue of vertices to be processed
-    protected PriorityQueue<Pair<Vertex, Double>> vertexQueue = new PriorityQueue<>(0, new abs_comparison());
+    protected PriorityQueue<Pair<Vertex, Double>> vertexQueue = new PriorityQueue<>(1, new abs_comparison());
 
     protected HalfEdgeDiagram g = new HalfEdgeDiagram(); ///< the half-edge diagram of the vd
     protected double far_radius; ///< sites must fall within a circle with radius far_radius
@@ -46,11 +46,11 @@ public class VoronoiDiagram {
 
     /// \brief create a VoronoiDiagram
     /// \param far is the radius of a circle within which all sites must be located. use far==1.0
-    public VoronoiDiagram(double far) {
+    public VoronoiDiagram() {
         kd_tree = new KdTree<KdPoint>(2);
         vd_checker = new VoronoiDiagramChecker( g ); // helper-class that checks topology/geometry
         vpos = new VertexPositioner( g ); // helper-class that positions vertices
-        far_radius=far;
+        far_radius=1.0;
         initialize();
         num_psites=3;
         num_lsites=0;

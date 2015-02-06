@@ -57,7 +57,7 @@ public class VertexPositioner {
     double t_min; ///< minimum offset-distance
     double t_max; ///< maximum offset-distance
     Edge edge;  ///< the edge on which we position a new vertex
-    List<Double> errstat; ///< error-statistics
+    List<Double> errstat = new ArrayList<>(); ///< error-statistics
     boolean silent; ///< silent mode (outputs no warnings to stdout)
 
     /// create positioner, set graph.
