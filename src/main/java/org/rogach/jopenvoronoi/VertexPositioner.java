@@ -131,7 +131,7 @@ public class VertexPositioner {
         for (Solution s : solutions) {
             if (!s3.in_region(s.p)) {
                 rejected_solutions.add(s);
-            } else if (new t_filter(t_min, t_min).apply(s)) {
+            } else if (new t_filter(t_min, t_max).apply(s)) {
                 rejected_solutions.add(s);
             }
         }
