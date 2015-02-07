@@ -19,14 +19,12 @@ object build extends Build {
         "-Xlint"
       ),
       javacOptions ++= Seq("-Xlint:all"),
-      javaOptions ++= Seq("-ea"),
 
       libraryDependencies ++= Seq(
         "org.scalatest" %% "scalatest" % "2.2.2" % "test"
       ),
 
       Revolver.reColors := Seq("blue", "green", "magenta", "cyan"),
-      mainClass in Revolver.reStart := Some("org.rogach.jopenvoronoi.Main"),
       mainClass in assembly := Some("org.rogach.jopenvoronoi.Main"),
 
       name := "jopenvoronoi",
