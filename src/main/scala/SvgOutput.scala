@@ -38,8 +38,8 @@ object SvgOutput {
     val trg_p = scale(trg.position)
 
     def a(d: Double) = if (Math.abs(d) < 1e-8) 0 else d // remove negative zeros
-    // printf("edge: %f,%f ---> %f,%f\n",
-    //   a(src.position.x), a(src.position.y), a(trg.position.x), a(trg.position.y))
+    printf("edge: %f,%f ---> %f,%f\n",
+      a(src.position.x), a(src.position.y), a(trg.position.x), a(trg.position.y))
 
     val col = edge_color_string(e)
     val points =
