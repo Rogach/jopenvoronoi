@@ -68,7 +68,7 @@ object SvgOutput {
       f"${p.x}%.3f,${p.y}%.3f"
     }.mkString(" ")
     if (points.nonEmpty) {
-      w.println(s"""<polyline points="$pointsStr" fill="transparent" stroke-width="1" stroke="$col" />""")
+      w.println(s"""<polyline points="$pointsStr" fill="none" stroke-width="1" stroke="$col" />""")
     }
   }
 
