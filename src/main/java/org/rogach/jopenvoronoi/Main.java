@@ -26,16 +26,6 @@ public class Main {
 
         vd.filter(new MedialAxisFilter());
 
-        // // benchmark :)
-        // val stt = System.currentTimeMillis
-        // (1 to 10000).foreach { _ =>
-        //   val x = scala.util.Random.nextDouble * 1.4 - 0.7
-        //   val y = scala.util.Random.nextDouble * 1.4 - 0.7
-        //   vd.insert_point_site(new Point(x,y))
-        // }
-        // val end = System.currentTimeMillis
-        // printf("elapsed %d ms\n", end - stt)
-
         SvgOutput.output(vd, "medial_axis_test.svg");
     }
 }
