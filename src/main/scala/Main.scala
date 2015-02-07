@@ -25,6 +25,10 @@ object Main extends App {
     vd.insert_line_site(v3, v4)
     vd.insert_line_site(v4, v0)
 
+    vd.check()
+
+    vd.filter(new MedialAxisFilter())
+
     // // benchmark :)
     // val stt = System.currentTimeMillis
     // (1 to 10000).foreach { _ =>

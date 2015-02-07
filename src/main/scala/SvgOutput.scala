@@ -12,7 +12,7 @@ object SvgOutput {
     // write header
     w.println("""<svg width="1024px" height="1024px">""")
 
-    g.edges.asScala.foreach { e =>
+    g.edges.asScala.filter(_.valid).foreach { e =>
       writeEdge(w, e)
     }
     g.vertices.asScala.foreach { v =>
