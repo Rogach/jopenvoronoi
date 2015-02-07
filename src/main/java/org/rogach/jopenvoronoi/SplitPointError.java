@@ -1,11 +1,12 @@
 package org.rogach.jopenvoronoi;
 
 import java.awt.geom.Point2D;
+import org.apache.commons.math3.analysis.UnivariateFunction;
 
 /// \brief error-functor to locate ::SPLIT vertices
 ///
 /// for passing to numerical boost::toms748 root-finding algorithm
-public class SplitPointError {
+public class SplitPointError implements UnivariateFunction {
     private HalfEdgeDiagram g;      ///< reference to vd-graph
     private Edge edge;     ///< the HEEdge on which we position the new SPLIT vertex
     private Point p1;     ///< first point of the split-line
@@ -23,7 +24,7 @@ public class SplitPointError {
     }
 
     /// \return signed distance to the pt1-pt2 line from edge-point at given offset \a t
-    public double apply(double t) {
+    public double value(double t) {
         Point p = edge.point(t);
         // line: pt1 + u*(pt2-pt1) = p
         //   (p-pt1) dot (pt2-pt1) = u* (pt2-pt1) dot (pt2-pt1)

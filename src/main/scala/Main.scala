@@ -15,13 +15,15 @@ object Main extends App {
 
     val v0 = vd.insert_point_site(p0)
     val v1 = vd.insert_point_site(p1)
-    // val v2 = vd.insert_point_site(p2)
-    // val v3 = vd.insert_point_site(p3)
+    val v2 = vd.insert_point_site(p2)
+    val v3 = vd.insert_point_site(p3)
     val v4 = vd.insert_point_site(p4)
 
     vd.insert_line_site(v0, v1)
-    // vd.insert_line_site(v1, v2)
-    // vd.insert_line_site(v2, v3)
+    vd.insert_line_site(v1, v2)
+    vd.insert_line_site(v2, v3)
+    vd.insert_line_site(v3, v4)
+    vd.insert_line_site(v4, v0)
 
     // // benchmark :)
     // val stt = System.currentTimeMillis

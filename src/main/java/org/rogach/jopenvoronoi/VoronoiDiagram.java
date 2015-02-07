@@ -11,6 +11,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Comparator;
 import java.util.Arrays;
+import org.apache.commons.math3.analysis.solvers.BracketingNthOrderBrentSolver;
+import org.apache.commons.math3.analysis.solvers.AllowedSolution;
 
 /// \brief Voronoi diagram.
 ///
@@ -1211,19 +1213,17 @@ public class VoronoiDiagram {
                 Vertex split_src = split_edge.source;
                 Vertex split_trg = split_edge.target;
                 SplitPointError errFunctr = new SplitPointError(g, split_edge, pt1, pt2); // error functor
-                int max_iter=500;
                 double min_t = Math.min(split_src.dist() , split_trg.dist());
                 double max_t = Math.max(split_src.dist() , split_trg.dist());
                 // require that min_t and max_t bracket the root
-                if ( errFunctr.apply(min_t)*errFunctr.apply(max_t) >= 0 )
+                if ( errFunctr.value(min_t)*errFunctr.value(max_t) >= 0 )
                     return;
 
-                //boost::math::tools::eps_tolerance<double> tol(64); // bits of tolerance?
-                //std::pair<double, double> r1 = boost::math::tools::toms748_solve(errFunctr, min_t, max_t, tol, max_iter);
-                Pair<Double, Double> r1 = null;
-                assert(r1 != null);
+                BracketingNthOrderBrentSolver solver = new BracketingNthOrderBrentSolver(1e-20, 5);
+                int max_iter=500;
+                double result = solver.solve(max_iter, errFunctr, min_t, max_t, AllowedSolution.ANY_SIDE);
 
-                split_pt_pos = split_edge.point( r1.getFirst());
+                split_pt_pos = split_edge.point(result);
 
 
                 Vertex v = g.add_vertex(new Vertex(split_pt_pos, VertexStatus.UNDECIDED, VertexType.SPLIT, fs.position() ) );
