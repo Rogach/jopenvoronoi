@@ -414,7 +414,7 @@ public class VoronoiDiagram {
     /// believe their predicate to be more reliable.
     class abs_comparison implements Comparator<Pair<Vertex, Double>> {
         public int compare(Pair<Vertex, Double> lhs, Pair<Vertex, Double> rhs) {
-            return Double.compare(Math.abs(lhs.getSecond()), Math.abs(rhs.getSecond()));
+            return -Double.compare(Math.abs(lhs.getSecond()), Math.abs(rhs.getSecond()));
         }
     }
 
@@ -498,8 +498,8 @@ public class VoronoiDiagram {
         g.set_next_cycle(Arrays.asList(e7_1, e7_2, e8, e9_1, e9_2) , f3 , 1);
 
         // set type.
-        e1_1.type = EdgeType.LINE;  e1_1.set_parameters(f1.site, f3.site, false);
-        e1_2.type = EdgeType.LINE;  e1_2.set_parameters(f1.site, f3.site, true);
+        e1_1.type = EdgeType.LINE; e1_1.set_parameters(f1.site, f3.site, false);
+        e1_2.type = EdgeType.LINE; e1_2.set_parameters(f1.site, f3.site, true);
         e2.type = EdgeType.OUTEDGE;
         e3_1.type = EdgeType.LINE; e3_1.set_parameters(f2.site, f1.site, true);
         e3_2.type = EdgeType.LINE; e3_2.set_parameters(f2.site, f1.site, false);

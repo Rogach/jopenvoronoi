@@ -59,7 +59,7 @@ object SvgOutput {
 
   def scale(p: Point) = {
     val s = 512d
-    p.mult(s).add(new Point(s,s))
+    new Point(p.x * s + s, -p.y * s + s)
   }
 
   def edge_color_string(e: Edge) = color_string(edge_color(e))
