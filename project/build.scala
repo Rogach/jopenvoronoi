@@ -18,7 +18,7 @@ object build extends Build {
         "-language:implicitConversions",
         "-Xlint"
       ),
-      javacOptions ++= Seq("-Xmaxerrs", "3", "-Xmaxwarns", "3", "-Xlint:all"),
+      javacOptions ++= Seq("-Xlint:all"),
       javaOptions ++= Seq("-ea"),
 
       libraryDependencies ++= Seq(
