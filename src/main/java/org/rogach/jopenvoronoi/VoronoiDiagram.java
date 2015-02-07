@@ -1426,7 +1426,7 @@ public class VoronoiDiagram {
         Vertex adj = next_prev ? trg : src; // this is the vertex adjacent to the end-point, on the null face
         assert( (next_prev ? src : trg).type == VertexType.ENDPOINT );  // this is the end-point of the segment we are inserting
 
-        Vertex sep_point = new Vertex();
+        Vertex sep_point = null;
         double dir_mult = next_prev ? +1 : -1;
         Point   sep_dir = dir.xy_perp().mult(dir_mult);
         double sep_alfa = Numeric.diangle(sep_dir.x,sep_dir.y); // alfa of potential SEPPOINT
