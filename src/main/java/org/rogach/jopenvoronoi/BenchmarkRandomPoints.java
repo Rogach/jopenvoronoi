@@ -27,6 +27,5 @@ public class BenchmarkRandomPoints extends Benchmark {
         for (Point p : points) {
             vd.insert_point_site(p);
         }
-        assert(vd.check());
     }
 }

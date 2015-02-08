@@ -47,9 +47,9 @@ import java.util.HashSet;
 
 public class HalfEdgeDiagram {
 
-    public List<Vertex> vertices = new ArrayList<Vertex>();
-    public List<Edge> edges = new ArrayList<Edge>();
-    public List<Face> faces = new ArrayList<Face>();
+    public Set<Vertex> vertices = new HashSet<>();
+    public Set<Edge> edges = new HashSet<>();
+    public Set<Face> faces = new HashSet<>();
 
     public Vertex add_vertex() {
         Vertex v = new Vertex();
