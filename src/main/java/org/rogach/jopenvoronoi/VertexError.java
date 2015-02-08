@@ -1,9 +1,11 @@
 package org.rogach.jopenvoronoi;
 
+import org.apache.commons.math3.analysis.*;
+
 /// \brief error functor for edge-based desperate solver
 ///
 /// minimize error by searching for a point on the solution-edge
-public class VertexError {
+public class VertexError implements UnivariateFunction {
     HalfEdgeDiagram g; ///< vd-graph
     Edge edge; ///< existing edge on which we have positioned a new vertex
     Site s3; ///< newly inserted Site
@@ -20,7 +22,7 @@ public class VertexError {
     /// return the vertex-error t-d3 where
     /// t3 is the distance from edge-point(t) to s3, and
     /// t is the offset-distance of the solution
-    double apply(double t) {
+    public double value(double t) {
         Point p = edge_point(t);
         double s3_dist = p.sub(s3.apex_point(p)).norm();
         return Math.abs(t-s3_dist);
@@ -39,10 +41,10 @@ public class VertexError {
             // edge is src_p -> trg_p
             if ( trg_t > src_t ) {
                 double frac = (t-src_t) / (trg_t-src_t);
-                p = src_p.sub(trg_p.sub(src_p).mult(frac));
+                p = src_p.add(trg_p.sub(src_p).mult(frac));
             } else {
                 double frac = (t-trg_t) / (src_t-trg_t);
-                p = trg_p.sub(src_p.sub(trg_p).mult(frac));
+                p = trg_p.add(src_p.sub(trg_p).mult(frac));
             }
 
         } else

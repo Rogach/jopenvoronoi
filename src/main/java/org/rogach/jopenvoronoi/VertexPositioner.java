@@ -2,6 +2,9 @@ package org.rogach.jopenvoronoi;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.apache.commons.math3.optim.*;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.univariate.*;
 
 /// Calculates the (x,y) position of a VoronoiVertex in the VoronoiDiagram
 public class VertexPositioner {
@@ -157,7 +160,39 @@ public class VertexPositioner {
 
 
         // either 0, or >= 2 solutions found. This is an error.
-        throw new RuntimeException("None, or too many solutions found!");
+        //throw new RuntimeException("None, or too many solutions found!");
+        return desperate_solution(s3);
+    }
+
+    /// search numerically for a desperate solution along the solution-edge
+    Solution desperate_solution(Site s3) {
+        VertexError err_functor = new VertexError(g, edge, s3);
+        Vertex src = edge.source;
+        Vertex trg = edge.target;
+        Point src_p = src.position;
+        Point trg_p = trg.position;
+
+        BrentOptimizer optimizer = new BrentOptimizer(1e-10, 1e-14);
+        double t_sln = optimizer.optimize(new MaxEval(1000),
+                                          new UnivariateObjectiveFunction(err_functor),
+                                          GoalType.MINIMIZE,
+                                          new SearchInterval(t_min, t_max)).getPoint();
+        Point p_sln = err_functor.edge_point(t_sln); //g[edge].point(t_sln);
+        double desp_k3 = 0;
+        if (s3.isPoint())
+            desp_k3 = 1;
+        else if ( s3.isLine() ) {
+            // find out on which side the desperate solution lies
+            Point src_se = s3.start();
+            Point trg_se = s3.end();
+            Point left = src_se.add(trg_se).mult(0.5).add(trg_se.sub(src_se).xy_perp());
+            if (p_sln.is_right(src_se,trg_se)) {
+                desp_k3 = (s3.k()==1) ? -1 : 1;
+            } else {
+                desp_k3 = (s3.k()==1) ? 1 : -1;
+            }
+        }
+        return new Solution( p_sln, t_sln, desp_k3 );
     }
 
     /// dispatch to the correct solver based on the sites
