@@ -1,42 +1,29 @@
 package org.rogach.jopenvoronoi;
 
-import java.awt.geom.Point2D;
+import java.awt.geom.*;
 import java.util.*;
 import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        if (new File("failure.txt").exists()) {
-            VoronoiDiagram vd = processPolygon(RandomPolygon.readFromText("failure.txt"));
-            SvgOutput.output(vd, "medial_axis.svg");
-        } else {
-            for (int i = 0; i < 3000000; i++) {
-                if (i % 1000 == 0) {
-                    System.out.printf("test %d\n", i);
-                }
-
-                List<Point2D> polygon = RandomPolygon.generate_polygon(5);
-                try {
-                    processPolygon(polygon);
-                } catch (Exception e) {
-                    RandomPolygon.writeToText("failure.txt", polygon);
-                    RandomPolygon.writeToSvg("failure.svg", polygon);
-                    throw e;
-                }
-            }
-        }
-    }
-    public static VoronoiDiagram processPolygon(List<Point2D> polygon) {
         VoronoiDiagram vd = new VoronoiDiagram();
-        List<Vertex> vs = new ArrayList<>();
-        for (Point2D p : polygon) {
-            vs.add(vd.insert_point_site(new Point(p.getX(), p.getY())));
-        }
+        Vertex v1 = vd.insert_point_site(new Point(-0.2567719874411157,-0.4983049800651602));
+        Vertex v2 = vd.insert_point_site(new Point(0.12205285479992212,-0.640371712930281));
+        Vertex v3 = vd.insert_point_site(new Point(-0.25972854724944455,-0.5143879072702902));
+        Vertex v4 = vd.insert_point_site(new Point(-0.34168692840153536,-0.6418861147966213));
+        Vertex v5 = vd.insert_point_site(new Point(-0.5288215108461576,0.18480346369654843));
+        Vertex v6 = vd.insert_point_site(new Point(-0.35263585687204546,-0.50735692278175));
+        Vertex v7 = vd.insert_point_site(new Point(-0.4821854389417177,0.46463421861462373));
 
-        for (int q = 0; q < vs.size() - 1; q++) {
-            vd.insert_line_site(vs.get(q), vs.get(q+1));
-        }
-        vd.insert_line_site(vs.get(vs.size()-1), vs.get(0));
-        return vd;
+        vd.insert_line_site(v1, v2);
+        vd.insert_line_site(v2, v3);
+        vd.insert_line_site(v3, v4);
+        vd.insert_line_site(v4, v5);
+        vd.insert_line_site(v5, v6);
+        vd.insert_line_site(v6, v7);
+
+        vd.check();
+
+        SvgOutput.output(vd, "test.svg");
     }
 }
