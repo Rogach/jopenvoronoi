@@ -28,7 +28,6 @@ public class RandomPolygon {
 
         List<Point2D> path1 = buildPath(p1, p2, group1);
         List<Point2D> path2 = buildPath(p2, p1, group2);
-        // writeLine(p1, p2, Color.RED);
 
         List<Point2D> result = new ArrayList<>();
         result.add(p1);
@@ -97,13 +96,13 @@ public class RandomPolygon {
         for (int q = 0; q < points.size() - 1; q++) {
             Point2D p1 = points.get(q);
             Point2D p2 = points.get(q+1);
-            w.printf("<polyline points=\"%f,%f %f,%f\" fill=\"none\" stroke-width=\"0.3\" stroke=\"black\" />\n",
+            w.printf("<polyline points=\"%f,%f %f,%f\" fill=\"none\" stroke-width=\"2\" stroke=\"black\" />\n",
                      p1.getX()*512 + 512, -p1.getY()*512 + 512,
                      p2.getX()*512 + 512, -p2.getY()*512 + 512);
         }
         Point2D p1 = points.get(points.size() - 1);
         Point2D p2 = points.get(0);
-        w.printf("<polyline points=\"%f,%f %f,%f\" fill=\"none\" stroke-width=\"0.3\" stroke=\"black\" />\n",
+        w.printf("<polyline points=\"%f,%f %f,%f\" fill=\"none\" stroke-width=\"2\" stroke=\"black\" />\n",
                  p1.getX()*512 + 512, -p1.getY()*512 + 512,
                  p2.getX()*512 + 512, -p2.getY()*512 + 512);
         w.println("</svg>");
