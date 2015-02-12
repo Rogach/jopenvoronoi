@@ -33,16 +33,16 @@ public class Vertex {
         expected_degree.put(VertexType.APEX, 4);      // apex point on quadratic bisector
     }
 
-    VertexStatus status; ///< vertex status. updated/changed during an incremental graph update
-    VertexType type; ///< The type of the vertex. Never(?) changes
-    double max_error; ///< \todo what is this? remove?
-    boolean in_queue; ///< flag for indicating wether vertex is in the vertexQueue
-    Point position; ///< the position of the vertex.
-    double k3;  ///< the offset-direction {-1,+1} of this vertex to the newly inserted site.
-    double alfa; ///< diangle for a null-vertex. only for debug-drawing
-    Face null_face; ///< if this is a null-face, a handle to the null-face
-    Face face; ///< the face of this vertex, if the vertex is a point-site
-    double r; ///< clearance-disk radius, i.e. the closest Site is at this distance
+    public VertexStatus status; ///< vertex status. updated/changed during an incremental graph update
+    public VertexType type; ///< The type of the vertex. Never(?) changes
+    public double max_error; ///< \todo what is this? remove?
+    public boolean in_queue; ///< flag for indicating wether vertex is in the vertexQueue
+    public Point position; ///< the position of the vertex.
+    public double k3;  ///< the offset-direction {-1,+1} of this vertex to the newly inserted site.
+    public double alfa; ///< diangle for a null-vertex. only for debug-drawing
+    public Face null_face; ///< if this is a null-face, a handle to the null-face
+    public Face face; ///< the face of this vertex, if the vertex is a point-site
+    public double r; ///< clearance-disk radius, i.e. the closest Site is at this distance
 
     /// ctor with given status and type
     public Vertex( Point p, VertexStatus st, VertexType t) {
