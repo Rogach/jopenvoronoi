@@ -1,6 +1,6 @@
 package org.rogach.jopenvoronoi;
 
-class Face {
+public class Face {
     public Edge edge;
     public Site site;
     public FaceStatus status;

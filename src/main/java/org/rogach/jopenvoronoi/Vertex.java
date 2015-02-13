@@ -117,7 +117,7 @@ public class Vertex {
     }
 
     /// return distance to a point from this vertex
-    double dist(Point p) {
+    public double dist(Point p) {
         return position.sub(p).norm();
     }
 
@@ -127,7 +127,7 @@ public class Vertex {
     }
 
     /// return clearance disk-radius
-    double dist() {
+    public double dist() {
         return r;
     }
 
