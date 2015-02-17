@@ -843,10 +843,6 @@ public class VoronoiDiagram {
         List<Edge> q_edges = find_in_out_edges(); // new vertices generated on these IN-OUT edges
         for (Edge e : q_edges) {
             Solution sl = vpos.position(e, new_site ); // vertex_positioner.cpp
-            if ( vpos.dist_error(e, sl, new_site) > 1e-3 ) {
-                Vertex src = e.source;
-                Vertex trg = e.target;
-            }
             Vertex q = g.add_vertex(new Vertex( sl.p, VertexStatus.NEW, VertexType.NORMAL, new_site.apex_point( sl.p ), sl.k3 ) );
             modified_vertices.add(q);
             g.add_vertex_in_edge( q,e );
