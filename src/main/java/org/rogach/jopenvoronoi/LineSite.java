@@ -86,4 +86,9 @@ public class LineSite extends Site {
     public Point start() {return _start;}
     public Point end() {return _end;}
     public Edge edge() {return e;}
+
+    @Override
+    public String toString() {
+        return String.format("LS(%s>%s)", _start, _end);
+    }
 };

@@ -6,13 +6,19 @@ import java.util.*;
 
 public class SvgOutput {
     private static double WIDTH = 1;
+    private static double SCALE = 512;
 
-    public static void output(VoronoiDiagram vd, String fname) throws FileNotFoundException {
-        PrintWriter w = new PrintWriter(fname);
+    public static void output(VoronoiDiagram vd, String fname) {
+        PrintWriter w;
+        try {
+            w = new PrintWriter(fname);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         HalfEdgeDiagram g = vd.get_graph_reference();;
 
         // write header
-        w.println("<svg width=\"1024px\" height=\"1024px\">");
+        w.println("<svg width='1024px' height='1024px'>");
 
         for (Edge e : g.edges) {
             if (e.valid) {
@@ -32,8 +38,14 @@ public class SvgOutput {
     public static void writeVertex(PrintWriter w, Vertex v) {
         String col = color_string(vertex_color(v));
         Point p = scale(v.position);
-        w.printf("<circle cx=\"%.3f\" cy=\"%.3f\" r=\"%f\" fill=\"%s\"/>\n",
+        w.printf("<circle cx='%f' cy='%f' r='%f' fill='%s'/>\n",
                  p.x, p.y, WIDTH * 1.5, col);
+        if (v.status == VertexStatus.IN) {
+            w.printf("<circle cx='%f' cy='%f' r='%f' stroke='red' fill='none' stroke-width='%f'/>\n",
+                     p.x, p.y, WIDTH * 3, WIDTH * 0.5);
+        }
+        w.printf("<text x='%f' y='%f' font-size='7'>(%.3f,%.3f)</text>\n",
+                 p.x, p.y, v.position.x, v.position.y);
     }
 
     public static void writeEdge(PrintWriter w, Edge e) {
@@ -71,14 +83,13 @@ public class SvgOutput {
             sb.append(" ");
         }
         if (!points.isEmpty()) {
-            w.printf("<polyline points=\"%s\" fill=\"none\" stroke-width=\"%f\" stroke=\"%s\" />\n",
+            w.printf("<polyline points='%s' fill='none' stroke-width='%f' stroke='%s' />\n",
                      sb.toString(), WIDTH, col);
         }
     }
 
-    public static Point  scale(Point p) {
-        double s = 512d;
-        return new Point(p.x * s + s, -p.y * s + s);
+    public static Point scale(Point p) {
+        return new Point(p.x * SCALE + SCALE, -p.y * SCALE + SCALE);
     }
 
     public static String edge_color_string(Edge e) {

@@ -99,6 +99,6 @@ public class Point {
     }
     @Override
     public String toString() {
-        return String.format("(%f, %f)", x, y);
+        return String.format("%.3f,%.3f", x, y);
     }
 }

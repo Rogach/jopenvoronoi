@@ -433,6 +433,11 @@ public class VoronoiDiagram {
         Vertex v2;   ///< NEW edge target
         Edge v2_nxt; ///< edge following v2
         Face f;      ///< face of v1 and v2
+
+        @Override
+        public String toString() {
+            return String.format("EdgeData(\n  v1_prv: %s\n  v1: %s\n  v1_nxt: %s\n  v2_prv: %s\n  v2: %s\n  v2_nxt: %s\n)", v1_prv, v1, v1_nxt, v2_prv, v2, v2_nxt);
+        }
     };
 
     /// \brief initialize the diagram with three generators

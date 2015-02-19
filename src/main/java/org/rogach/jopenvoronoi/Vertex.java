@@ -140,4 +140,9 @@ public class Vertex {
     public static void reset_count() {
         count = 0;
     }
+
+    @Override
+    public String toString() {
+        return String.format("V(%s)", position);
+    }
 }

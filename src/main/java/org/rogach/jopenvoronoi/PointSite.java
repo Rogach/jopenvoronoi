@@ -52,4 +52,9 @@ public class PointSite extends Site {
     public boolean in_region(Point p) {return true;}
     public double in_region_t(Point p) {return -1;}
     public Vertex vertex() {return v;}
+
+    @Override
+    public String toString() {
+        return String.format("PS(%s)", _p);
+    }
 };

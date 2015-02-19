@@ -22,7 +22,7 @@ public class Edge {
     public Face face;
     public Face null_face;
     public boolean has_null_face;
-    public double k;
+    public double k; ///< offset-direction from the adjacent site, either +1 or -1
     public EdgeType type;
     public boolean valid;
     public double[] x = new double[8]; ///< 8-parameter parametrization
@@ -386,5 +386,10 @@ public class Edge {
         double p1p2 = s1.position().sub(s2.apex_point(s1.position())).norm(); // - s2->r() ;
         assert( p1p2 >=0 );
         return p1p2/2; // this splits point-point edges at APEX
+    }
+
+    @Override
+    public String toString() {
+        return String.format("E(%s>%s)", source.position, target.position);
     }
 }
