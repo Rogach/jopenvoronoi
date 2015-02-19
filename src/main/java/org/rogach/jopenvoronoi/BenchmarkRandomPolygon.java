@@ -2,6 +2,7 @@ package org.rogach.jopenvoronoi;
 
 import java.awt.geom.Point2D;
 import java.util.*;
+import java.util.Random;
 
 public class BenchmarkRandomPolygon extends Benchmark{
     public static void main(String[] args) throws Exception {
@@ -26,11 +27,11 @@ public class BenchmarkRandomPolygon extends Benchmark{
             vd.insert_line_site(vs.get(vs.size()-1), vs.get(0));
         } catch (Exception e) {
             try {
-                RandomPolygon.writeToSvg("failure.svg", points);
+                String f = String.format("failures/failure-%d.txt", new Random().nextInt(1000000));
+                EuclideanInput.fromPolygon(points).writeToText(f);
             } catch (Exception e2) {
-                throw e;
             }
-            throw e;
+            e.printStackTrace();
         }
     }
 }
