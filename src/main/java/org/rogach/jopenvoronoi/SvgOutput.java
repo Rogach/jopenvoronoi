@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 public class SvgOutput {
-    private static double WIDTH = 1;
+    private static double WIDTH = 0.2;
     private static double SCALE = 512;
 
     public static void output(VoronoiDiagram vd, String fname) {
@@ -19,6 +19,8 @@ public class SvgOutput {
 
         // write header
         w.println("<svg width='1024px' height='1024px'>");
+        // write background
+        w.println("<rect width='1024px' height='1024px' fill='rgb(200,200,200)'/>");
 
         for (Edge e : g.edges) {
             if (e.valid) {
@@ -40,12 +42,16 @@ public class SvgOutput {
         Point p = scale(v.position);
         w.printf("<circle cx='%f' cy='%f' r='%f' fill='%s'/>\n",
                  p.x, p.y, WIDTH * 1.5, col);
+        if (v.status == VertexStatus.NEW) {
+            w.printf("<circle cx='%f' cy='%f' r='%f' stroke='green' fill='none' stroke-width='%f'/>\n",
+                     p.x, p.y, WIDTH * 2, WIDTH * 0.5);
+        }
         if (v.status == VertexStatus.IN) {
             w.printf("<circle cx='%f' cy='%f' r='%f' stroke='red' fill='none' stroke-width='%f'/>\n",
                      p.x, p.y, WIDTH * 3, WIDTH * 0.5);
         }
-        w.printf("<text x='%f' y='%f' font-size='7'>(%.3f,%.3f)</text>\n",
-                 p.x, p.y, v.position.x, v.position.y);
+        w.printf("<text x='%f' y='%f' font-size='%f'>(%.3f,%.3f)</text>\n",
+                 p.x, p.y, WIDTH * 5, v.position.x, v.position.y);
     }
 
     public static void writeEdge(PrintWriter w, Edge e) {
@@ -89,7 +95,7 @@ public class SvgOutput {
     }
 
     public static Point scale(Point p) {
-        return new Point(p.x * SCALE + SCALE, -p.y * SCALE + SCALE);
+        return new Point(p.x * SCALE/2 + SCALE, -p.y * SCALE/2 + SCALE);
     }
 
     public static String edge_color_string(Edge e) {
