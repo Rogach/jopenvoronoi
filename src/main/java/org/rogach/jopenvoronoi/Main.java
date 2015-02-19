@@ -35,6 +35,14 @@ public class Main {
     public static EuclideanInput minimizeFailure(EuclideanInput input) throws IOException {
         System.out.printf("Minimizing input with %d points and %d segments\n",
                           input.points.size(), input.segments.size());
+        Throwable origException = null;
+        try {
+            input.buildVoronoiDiagram();
+            System.out.println("No minimization: input doesn't fail");
+            return input;
+        } catch (Throwable th) {
+            origException = th;
+        }
         EuclideanInput current = input;
         while (true) {
             int c = 0;
@@ -46,10 +54,14 @@ public class Main {
                 try {
                     modified.buildVoronoiDiagram();
                 } catch (Throwable t) {
-                    current = modified;
-                    System.out.printf("|");
-                    System.out.flush();
-                    c++;
+                    if (t.getClass().equals(origException.getClass()) &&
+                        (t.getMessage() == origException.getMessage() ||
+                         t.getMessage().equals(origException.getMessage()))) {
+                        current = modified;
+                        System.out.printf("|");
+                        System.out.flush();
+                        c++;
+                    }
                 }
             }
             for (Point2D p : current.points) {
@@ -60,10 +72,14 @@ public class Main {
                     try {
                         modified.buildVoronoiDiagram();
                     } catch (Throwable t) {
-                        System.out.printf(".");
-                        System.out.flush();
-                        current = modified;
-                        c++;
+                        if (t.getClass().equals(origException.getClass()) &&
+                            (t.getMessage() == origException.getMessage() ||
+                             t.getMessage().equals(origException.getMessage()))) {
+                            System.out.printf(".");
+                            System.out.flush();
+                            current = modified;
+                            c++;
+                        }
                     }
                 }
             }
