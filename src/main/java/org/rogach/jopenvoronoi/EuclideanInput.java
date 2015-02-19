@@ -40,7 +40,7 @@ public class EuclideanInput {
 
     public void writeToSvg(String fname) throws IOException {
         File f = new File(fname);
-        f.getParentFile().mkdirs();
+        f.getAbsoluteFile().getParentFile().mkdirs();
         PrintWriter w = new PrintWriter(f);
         w.println("<svg width='1024px' height='1024px'>");
         w.println("<rect width='1024px' height='1024px' fill='rgb(200,200,200)'/>");
@@ -53,7 +53,7 @@ public class EuclideanInput {
         }
         for (Point2D p : points) {
             w.printf("<circle cx='%f' cy='%f' r='%f' fill='rgb(0,0,255)'/>\n",
-                     p.getX()*512 + 512, p.getY()*512 + 512, 2);
+                     p.getX()*512 + 512, -p.getY()*512 + 512, 2d);
         }
         w.println("</svg>");
         w.close();
@@ -61,7 +61,7 @@ public class EuclideanInput {
 
     public void writeToText(String fname) throws IOException {
         File f = new File(fname);
-        f.getParentFile().mkdirs();
+        f.getAbsoluteFile().getParentFile().mkdirs();
         PrintWriter w = new PrintWriter(f);
         for (Point2D p : points) {
             w.printf("%s,%s\n", p.getX(), p.getY());

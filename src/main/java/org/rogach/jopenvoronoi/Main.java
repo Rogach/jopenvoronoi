@@ -6,7 +6,7 @@ import java.io.*;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        EuclideanInput failure = EuclideanInput.readFromText("failures/failure-13340.txt");
+        EuclideanInput failure = EuclideanInput.readFromText("failures/failure-370011.txt");
         EuclideanInput minimized = minimizeFailure(failure);
         minimized.writeToSvg("minimized.svg");
         minimized.writeToText("minimized.txt");
@@ -44,42 +44,67 @@ public class Main {
             origException = th;
         }
         EuclideanInput current = input;
+        int batch = current.points.size() / 2;
         while (true) {
+            System.out.printf("\nAt the start of the iteration: %d points and %d segments\n",
+                              current.points.size(), current.segments.size());
             int c = 0;
-            for (Point2D src : current.segments.keySet()) {
-                Point2D trg = current.segments.get(src);
-                Map<Point2D, Point2D> lessSegments = new HashMap<>(current.segments);
-                lessSegments.remove(src);
-                EuclideanInput modified = new EuclideanInput(current.points, lessSegments);
-                try {
-                    modified.buildVoronoiDiagram();
-                } catch (Throwable t) {
-                    if (t.getClass().equals(origException.getClass()) &&
-                        (t.getMessage() == origException.getMessage() ||
-                         t.getMessage().equals(origException.getMessage()))) {
-                        current = modified;
-                        System.out.printf("|");
-                        System.out.flush();
-                        c++;
+            for (batch = batch > 0 ? batch : 1; batch >= 1; batch /= 2) {
+                for (int offset = 0; offset + batch <= current.segments.size(); offset += batch) {
+                    List<Point2D> pts = new ArrayList<>(current.segments.keySet());
+                    Map<Point2D, Point2D> lessSegments = new HashMap<>(current.segments);
+                    for (int q = offset; q < offset + batch; q++) {
+                        lessSegments.remove(pts.get(q));
                     }
-                }
-            }
-            for (Point2D p : current.points) {
-                if (!current.segments.keySet().contains(p) &&
-                    !current.segments.values().contains(p)) {
-                    List<Point2D> lessPoints = new ArrayList<>(current.points);
-                    EuclideanInput modified = new EuclideanInput(lessPoints, current.segments);
+                    EuclideanInput modified = new EuclideanInput(current.points, lessSegments);
                     try {
                         modified.buildVoronoiDiagram();
+                        System.out.printf("|");
+                        System.out.flush();
                     } catch (Throwable t) {
                         if (t.getClass().equals(origException.getClass()) &&
                             (t.getMessage() == origException.getMessage() ||
                              t.getMessage().equals(origException.getMessage()))) {
-                            System.out.printf(".");
-                            System.out.flush();
                             current = modified;
-                            c++;
+                            for (int q = 0; q < batch; q++) {
+                                System.out.printf("-");
+                            }
+                            System.out.flush();
+                            c += batch;
                         }
+                    }
+                }
+
+                for (int offset = 0; offset + batch <= current.points.size(); offset += batch) {
+                    List<Point2D> lessPoints = new ArrayList<>(current.points);
+                    int pointsRemoved = 0;
+                    for (int q = offset; q < offset + batch; q++) {
+                        if (!current.segments.keySet().contains(current.points.get(q)) &&
+                            !current.segments.values().contains(current.points.get(q))) {
+                            lessPoints.remove(current.points.get(q));
+                            pointsRemoved++;
+                        }
+                    }
+                    if (pointsRemoved > 0) {
+                        EuclideanInput modified = new EuclideanInput(lessPoints, current.segments);
+                        try {
+                            modified.buildVoronoiDiagram();
+                            System.out.printf("*");
+                            System.out.flush();
+                        } catch (Throwable t) {
+                            if (t.getClass().equals(origException.getClass()) &&
+                                (t.getMessage() == origException.getMessage() ||
+                                 t.getMessage().equals(origException.getMessage()))) {
+                                current = modified;
+                                for (int q = 0; q < pointsRemoved; q++) {
+                                    System.out.printf(".");
+                                }
+                                System.out.flush();
+                                c += pointsRemoved;
+                            }
+                        }
+                    } else {
+                        System.out.printf("*");
                     }
                 }
             }
@@ -87,7 +112,7 @@ public class Main {
                 break;
             }
         }
-        System.out.printf("Resulting input with %d points and %d segments\n",
+        System.out.printf("\nMinimized input to %d points and %d segments\n",
                           current.points.size(), current.segments.size());
         return current;
     }
