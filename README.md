@@ -9,8 +9,19 @@ approximately a second to create diagram from 20000 points.
 
 Building
 ========
-Currently the project is built using [SBT](http://www.scala-sbt.org/), but since it's just a bunch
+Currently the project is built using Maven, but since it's just a bunch
 of java files and a single jar dependency, you can quickly build it with whatever is at hand.
+
+You can build a jar of the project with:
+```
+mvn package
+```
+
+and run benchmarks:
+```
+mvn compile exec:java -Dmain=BenchmarkRandomPoints
+mvn compile exec:java -Dmain=BenchmarkRandomPolygon
+```
 
 Example code
 ============
