@@ -12,6 +12,7 @@ public class Face {
         sb.append("F(");
         Edge current = edge;
         do {
+            if (current == null) break;
             sb.append(current.source.position);
             sb.append(">");
             current = current.next;

@@ -254,8 +254,8 @@ public class VoronoiDiagram {
 
         // add SEPARATORS
         // find SEPARATOR targets first
-        FourTuple1 pos_start_target = find_separator_target( start.face , pos_sep_start);
-        FourTuple1 neg_start_target = find_separator_target( start.face , neg_sep_start);
+        SeparatorTarget pos_start_target = find_separator_target(start.face, pos_sep_start);
+        SeparatorTarget neg_start_target = find_separator_target(start.face, neg_sep_start);
 
         // add positive separator edge at start
         add_separator( start.face , start_null_face, pos_start_target, pos_sep_start, pos_face.site , neg_face.site );
@@ -269,8 +269,8 @@ public class VoronoiDiagram {
 
         if (step==current_step) return false; current_step++;
 
-        FourTuple1 pos_end_target = find_separator_target( end.face ,  pos_sep_end);
-        FourTuple1 neg_end_target = find_separator_target( end.face , neg_sep_end);
+        SeparatorTarget pos_end_target = find_separator_target(end.face, pos_sep_end);
+        SeparatorTarget neg_end_target = find_separator_target(end.face, neg_sep_end);
         // add positive separator edge at end
         add_separator( end.face , end_null_face, pos_end_target, pos_sep_end, pos_face.site , neg_face.site );
 
@@ -1056,16 +1056,22 @@ public class VoronoiDiagram {
         }
     }
 
-    class FourTuple1 {
-        public Edge get1;
-        public Vertex get2;
-        public Edge get3;
-        public boolean get4;
-        public FourTuple1(Edge e1, Vertex v1, Edge e2, boolean b) {
-            this.get1 = e1;
-            this.get2 = v1;
-            this.get3 = e2;
-            this.get4 = b;
+    class SeparatorTarget {
+        public Edge v_previous;
+        public Vertex v_target;
+        public Edge v_next;
+        public boolean out_new_in;
+        public SeparatorTarget(Edge v_previous, Vertex v_target, Edge v_next, boolean out_new_in) {
+            this.v_previous = v_previous;
+            this.v_target = v_target;
+            this.v_next = v_next;
+            this.out_new_in = out_new_in;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("SeparatorTarget(%s, %s, %s, %s)",
+                                 v_previous, v_target, v_next, out_new_in);
         }
     }
 
@@ -1076,7 +1082,7 @@ public class VoronoiDiagram {
     /// \param sep_endp ??
     /// \param s1 positive LineSite
     /// \param s2 negative LineSite
-    protected void add_separator(Face f, Face null_face, FourTuple1 target, Vertex sep_endp, Site s1, Site s2) {
+    protected void add_separator(Face f, Face null_face, SeparatorTarget target, Vertex sep_endp, Site s1, Site s2) {
         if ( sep_endp == null ) // no separator
             return; // do nothing!
 
@@ -1093,12 +1099,15 @@ public class VoronoiDiagram {
 
         // find NEW vertex on the old face f
         // this vertex has the correct alfa angle for this endp/separator
-        Edge v_previous = target.get1;
-        Vertex v_target = target.get2;
-        Edge    v_next  = target.get3;
-        boolean    out_new_in = target.get4;
+        Edge v_previous = target.v_previous;
+        Vertex v_target = target.v_target;
+        Edge    v_next  = target.v_next;
+        boolean    out_new_in = target.out_new_in;
         assert( (v_target.k3==1) || (v_target.k3==-1) );
         assert( sep_endp.k3 == v_target.k3 );
+        if (!s1.in_region(v_target.position) || !s2.in_region(v_target.position)) {
+            throw new RuntimeException("not in region");
+        }
         assert( s1.in_region(v_target.position ) ); // v1 and v2 should be in the region of the line-site
         assert( s2.in_region(v_target.position ) );
 
@@ -1389,9 +1398,9 @@ public class VoronoiDiagram {
     ///
     /// flag==false when an ::IN-::NEW-::OUT vertex was found
     ///
-    protected FourTuple1 find_separator_target(Face f, Vertex endp) {
+    protected SeparatorTarget find_separator_target(Face f, Vertex endp) {
         if (endp == null) // no separator
-            return new FourTuple1(null, null, null, false) ;
+            return new SeparatorTarget(null, null, null, false) ;
 
         Edge current_edge = f.edge; // start on some edge of the face
         Edge start_edge = current_edge;
@@ -1411,7 +1420,7 @@ public class VoronoiDiagram {
                                 current_vertex.status == VertexStatus.NEW &&
                                 (next_vertex.status == VertexStatus.OUT || (next_vertex.status == VertexStatus.UNDECIDED)) );
             if ( out_new_in || in_new_out ) {
-                if ( (endp.k3 == current_vertex.k3)  && !endp.equals(current_vertex) ) {
+                if ( (endp.k3 == current_vertex.k3)  && !endp.equals(current_vertex)) {
                         v_target = current_vertex;
                         v_previous = current_edge;
                         v_next = next_edge;
@@ -1423,7 +1432,7 @@ public class VoronoiDiagram {
         } while (!current_edge.equals(start_edge) && !found);
         assert(found);
 
-        return new FourTuple1(v_previous, v_target, v_next, flag);
+        return new SeparatorTarget(v_previous, v_target, v_next, flag);
     }
 
     /// \brief prepare null-face
