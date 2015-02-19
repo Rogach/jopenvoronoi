@@ -19,6 +19,7 @@ object build extends Build {
         "-Xlint"
       ),
       javacOptions ++= Seq("-Xlint:all"),
+      javaOptions += "-ea",
 
       libraryDependencies ++= Seq(
         "org.scalatest" %% "scalatest" % "2.2.2" % "test"
