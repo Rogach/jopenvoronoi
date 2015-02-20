@@ -25,6 +25,8 @@ public class RunTest {
         vd.insert_line_site(v6, v7);
         vd.insert_line_site(v7, v8);
         vd.insert_line_site(v8, v1);
+
+        vd.check();
     }
 
     @Test
@@ -39,6 +41,8 @@ public class RunTest {
 
         vd.insert_line_site(v3, v4);
         vd.insert_line_site(v5, v6);
+
+        vd.check();
     }
 
     @Test
@@ -58,6 +62,9 @@ public class RunTest {
         vd.insert_line_site(v4, v5);
         vd.insert_line_site(v5, v6);
         vd.insert_line_site(v6, v7);
+        vd.insert_line_site(v7, v1);
+
+        vd.check();
     }
 
     @Test

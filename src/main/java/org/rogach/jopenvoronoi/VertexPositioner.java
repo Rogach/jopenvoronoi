@@ -158,10 +158,14 @@ public class VertexPositioner {
             return desperate_solution(s3);
         } else {
             // choose solution closest to the t range
-            Solution leastBad = solutions.get(0);
-            double leastDiff = Math.min(Math.max(0, leastBad.t - t_max), Math.max(0, t_min - leastBad.t));
+            Solution leastBad = null;
+            double leastDiff = Double.MAX_VALUE;
             for (Solution s : solutions) {
-                double diff = Math.min(Math.max(0, s.t - t_max), Math.max(0, t_min - s.t));
+                double diff =
+                    (s.t > t_min && s.t < t_max) ? 0 :
+                    Math.min(
+                             (s.t < t_max) ? Double.MAX_VALUE : s.t - t_max,
+                             (s.t > t_min) ? Double.MAX_VALUE : t_min - s.t);
                 if (diff < leastDiff) {
                     leastBad = s;
                     leastDiff = diff;

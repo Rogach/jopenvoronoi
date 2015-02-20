@@ -1105,11 +1105,9 @@ public class VoronoiDiagram {
         boolean    out_new_in = target.out_new_in;
         assert( (v_target.k3==1) || (v_target.k3==-1) ) : " (v_target.k3==1) || (v_target.k3==-1) ";
         assert( sep_endp.k3 == v_target.k3 ) : " sep_endp.k3 == v_target.k3 ";
-        if (!s1.in_region(v_target.position) || !s2.in_region(v_target.position)) {
-            throw new RuntimeException("not in region");
-        }
-        assert( s1.in_region(v_target.position ) ) : " s1.in_region(v_target.position ) ";
-        assert( s2.in_region(v_target.position ) ) : " s2.in_region(v_target.position ) ";
+        // can't assert about in_region - numerical error is always present
+        // assert( s1.in_region(v_target.position ) ) : " s1.in_region(v_target.position ) ";
+        // assert( s2.in_region(v_target.position ) ) : " s2.in_region(v_target.position ) ";
 
         // add new separator edge, and its twin
         Pair<Edge, Edge> twin_edges = g.add_twin_edges( sep_endp, v_target );
