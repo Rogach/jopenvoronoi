@@ -108,7 +108,7 @@ public class Numeric {
             if ( ((less<=a) && (a<=4)) || ((0<=a) && (a<more)) )
                 return true;
         } else {
-            assert(false);
+            assert(false) : "false";
             return false;
         }
 
@@ -124,7 +124,7 @@ public class Numeric {
             double mid = opposite_mid + 2;
             if (mid>4)
                 mid=mid-4;
-            assert( (0<=mid) && (mid<=4) );
+            assert( (0<=mid) && (mid<=4) ) : " (0<=mid) && (mid<=4) ";
             return mid;
         }
     }

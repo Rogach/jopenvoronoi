@@ -163,7 +163,7 @@ public class HalfEdgeDiagram {
         //
 
         Edge e_twin = e.twin;
-        assert( e_twin != null );
+        assert( e_twin != null ) : " e_twin != null ";
         Vertex esource = e.source;
         Vertex etarget = e.target;
         Face face = e.face;
@@ -171,8 +171,8 @@ public class HalfEdgeDiagram {
         Edge previous = previous_edge(e);
         Edge twin_previous = previous_edge(e_twin);
 
-        assert( previous.face == e.face );
-        assert( twin_previous.face == e_twin.face );
+        assert( previous.face == e.face ) : " previous.face == e.face ";
+        assert( twin_previous.face == e_twin.face ) : " twin_previous.face == e_twin.face ";
 
         Edge e1 = add_edge(esource, v);
         Edge te2 = add_edge(v, esource);
@@ -213,8 +213,8 @@ public class HalfEdgeDiagram {
 
     /// make e1 the twin of e2 (and vice versa)
     public void twin_edges( Edge e1, Edge e2 ) {
-        assert(e1.target == e2.source);
-        assert(e1.source == e2.target);
+        assert(e1.target == e2.source) : "e1.target == e2.source";
+        assert(e1.source == e2.target) : "e1.source == e2.target";
         e1.twin = e2;
         e2.twin = e1;
     }
@@ -247,9 +247,9 @@ public class HalfEdgeDiagram {
         do {
             Vertex current_target = current.target;
             verts.add(current_target);
-            assert(current.face == current.next.face);
+            assert(current.face == current.next.face) : "current.face == current.next.face";
             current = current.next;
-            assert(count < 3000000); // stop at some max limit
+            assert(count < 3000000) : "count < 3000000";
             count++;
         } while ( current != startedge );
         return verts;
@@ -293,8 +293,8 @@ public class HalfEdgeDiagram {
 
     /// remove given v1-v2 edge and its twin
     void remove_twin_edges( Vertex v1, Vertex v2) {
-        assert( has_edge(v1,v2) );
-        assert( has_edge(v2,v1) );
+        assert( has_edge(v1,v2) ) : " has_edge(v1,v2) ";
+        assert( has_edge(v2,v1) ) : " has_edge(v2,v1) ";
         remove_edge(edge(v1, v2));
         remove_edge(edge(v2, v1));
     }
@@ -314,8 +314,8 @@ public class HalfEdgeDiagram {
         //                     face2
 
         List<Edge> v_edges = v.out_edges;
-        assert( v_edges.size() == 2);
-        assert( v_edges.get(0).source == v && v_edges.get(1).source == v );
+        assert( v_edges.size() == 2) : " v_edges.size() == 2";
+        assert( v_edges.get(0).source == v && v_edges.get(1).source == v ) : " v_edges.get(0).source == v && v_edges.get(1).source == v ";
 
         Vertex v1 = v_edges.get(0).target;
         Vertex v2 = v_edges.get(1).target;
@@ -344,7 +344,7 @@ public class HalfEdgeDiagram {
 
     /// set next-pointer of e1 to e2
     public void set_next(Edge e1, Edge e2) {
-        assert( e1.target == e2.source );
+        assert( e1.target == e2.source ) : " e1.target == e2.source ";
         e1.next = e2;
     }
 
@@ -404,8 +404,8 @@ public class HalfEdgeDiagram {
                 prev_edge = current;
             current = current.next;
         } while (current!=start_edge);
-        assert( next_edge != null );
-        assert( prev_edge != null );
+        assert( next_edge != null ) : " next_edge != null ";
+        assert( prev_edge != null ) : " prev_edge != null ";
         return new Pair<Edge, Edge>(next_edge, prev_edge);
     }
 }

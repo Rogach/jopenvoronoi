@@ -31,7 +31,7 @@ public class LineSite extends Site {
         eq.a /= d;
         eq.b /= d;
         eq.c /= d;
-        assert( Math.abs( eq.a*eq.a + eq.b*eq.b -1.0 ) < 1e-5);
+        assert( Math.abs( eq.a*eq.a + eq.b*eq.b -1.0 ) < 1e-5) : " Math.abs( eq.a*eq.a + eq.b*eq.b -1.0 ) < 1e-5";
     }
 
     public Ofs offset(Point p1, Point p2) { return new LineOfs(p1, p2); }
@@ -77,7 +77,7 @@ public class LineSite extends Site {
     public double b() { return eq.b; }
     public double c() { return eq.c; }
     public double k() {
-        assert( eq.k==1 || eq.k==-1 );
+        assert( eq.k==1 || eq.k==-1 ) : " eq.k==1 || eq.k==-1 ";
         return eq.k;
     }
     public void set_c(Point p) {

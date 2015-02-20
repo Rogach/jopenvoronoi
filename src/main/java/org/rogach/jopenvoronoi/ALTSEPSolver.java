@@ -68,7 +68,7 @@ public class ALTSEPSolver extends Solver {
         Point sv = (k3 == - 1) ? new Point(lsite.a(),lsite.b()) : new Point(-lsite.a(),-lsite.b());
 
         // now we should have this:
-        assert( lsite.isLine() && psite.isPoint() );
+        assert( lsite.isLine() && psite.isPoint() ) : " lsite.isLine() && psite.isPoint() ";
 
         double tsln = 0;
 
@@ -90,7 +90,7 @@ public class ALTSEPSolver extends Solver {
                 return 0;
             }
         } else {
-            assert(false);
+            assert(false) : "false";
         }
         Point psln = new Point(psite.x(), psite.y()).add(sv.mult(tsln));
         slns.add( new Solution( psln, tsln, k3 ) );

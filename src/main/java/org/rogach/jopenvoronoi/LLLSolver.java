@@ -27,7 +27,7 @@ public class LLLSolver extends Solver {
                       Site s2, double k2,
                       Site s3, double k3, List<Solution> slns ) {
 
-        assert( s1.isLine() && s2.isLine() && s3.isLine() );
+        assert( s1.isLine() && s2.isLine() && s3.isLine() ) : " s1.isLine() && s2.isLine() && s3.isLine() ";
 
         List<Eq> eq = new ArrayList<>(); // equation-parameters, in quad-precision
         Site[] sites = new Site[] { s1, s2, s3 };

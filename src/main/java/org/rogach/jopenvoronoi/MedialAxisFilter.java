@@ -92,10 +92,10 @@ public class MedialAxisFilter extends Filter {
         Vertex endp;
         if ( next.type == EdgeType.NULLEDGE ) {
             endp = next.target;
-            assert(endp.type == VertexType.ENDPOINT );
+            assert(endp.type == VertexType.ENDPOINT ) : "endp.type == VertexType.ENDPOINT ";
         } else if (prev.type == EdgeType.NULLEDGE ) {
             endp = prev.source;
-            assert(endp.type == VertexType.ENDPOINT );
+            assert(endp.type == VertexType.ENDPOINT ) : "endp.type == VertexType.ENDPOINT ";
         } else {
             throw new RuntimeException("Failed to find endpoint");
         }

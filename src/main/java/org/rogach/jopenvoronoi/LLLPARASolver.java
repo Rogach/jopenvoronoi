@@ -37,7 +37,7 @@ public class LLLPARASolver extends Solver {
     public int solve( Site s1, double k1,
                Site s2, double k2,
                Site s3, double k3, List<Solution> slns ) {
-        assert( s1.isLine() && s2.isLine() && s3.isLine() );
+        assert( s1.isLine() && s2.isLine() && s3.isLine() ) : " s1.isLine() && s2.isLine() && s3.isLine() ";
 
         Eq bisector = new Eq();
         bisector.a = s1.a();

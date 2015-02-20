@@ -105,9 +105,9 @@ public class VertexPositioner {
 
         Solution sl = position(  s1 , e.k, s2, twin.k, s3 );
 
-        assert( solution_on_edge(sl) );
-        //assert( check_far_circle(sl) );
-        assert( check_dist(edge, sl, s3) );
+        assert( solution_on_edge(sl) ) : " solution_on_edge(sl) ";
+        //assert( check_far_circle(sl) ) : " check_far_circle(sl) ";
+        assert( check_dist(edge, sl, s3) ) : " check_dist(edge, sl, s3) ";
 
         return sl;
     }
@@ -117,8 +117,8 @@ public class VertexPositioner {
     // should lie on the k1 side of s1, k2 side of s2
     // we try both k3=-1 and k3=+1 for s3
     Solution position(Site s1, double k1, Site s2, double k2, Site s3) {
-        assert( (k1==1) || (k1 == -1) );
-        assert( (k2==1) || (k2 == -1) );
+        assert( (k1==1) || (k1 == -1) ) : " (k1==1) || (k1 == -1) ";
+        assert( (k2==1) || (k2 == -1) ) : " (k2==1) || (k2 == -1) ";
         List<Solution> solutions = new ArrayList<>();
 
         solver_dispatch(s1,k1,s2,k2,s3,+1, solutions); // a single k3=+1 call for s3->isPoint()
@@ -209,11 +209,11 @@ public class VertexPositioner {
                 // find t
                 if ( edge.has_null_face ) {
                     s2 = edge.null_face.site;
-                    assert( s2.isPoint() ); // the sites of null-faces are allwais PointSite
+                    assert( s2.isPoint() ) : " s2.isPoint() ";
                     k2 = +1;
                 } else if (edge.twin.has_null_face ) {
                     s2 = edge.twin.null_face.site;
-                    assert( s2.isPoint() );
+                    assert( s2.isPoint() ) : " s2.isPoint() ";
                     k2 = +1;
                 }
             } else if ( s1.isPoint() && s2.isLine() ) {
@@ -225,10 +225,10 @@ public class VertexPositioner {
                 s2 = tmp;
                 k1 = k2;
                 k2 = k_tmp;
-                assert( s1.isLine() );
-                assert( s2.isPoint() );
+                assert( s1.isLine() ) : " s1.isLine() ";
+                assert( s2.isPoint() ) : " s2.isPoint() ";
             }
-            assert( s1.isLine() && s2.isPoint() ); // we have previously set s1(line) s2(point)
+            assert( s1.isLine() && s2.isPoint() ) : " s1.isLine() && s2.isPoint() ";
             return sep_solver.solve(s1,k1,s2,k2,s3,k3,solns);
         } else if ( edge.type == EdgeType.PARA_LINELINE  && s3.isLine() ) { // an edge betwee parallel LineSites
             //std::cout << " para lineline! \n";
@@ -296,7 +296,7 @@ public class VertexPositioner {
             Edge trg_out_twin = trg_out.twin;
             trg_null_face = trg_out_twin.face;
         }
-        assert( src_null_face.is_null_face && trg_null_face.is_null_face );
+        assert( src_null_face.is_null_face && trg_null_face.is_null_face ) : " src_null_face.is_null_face && trg_null_face.is_null_face ";
 
         // do we want src_out face??
         // OR src_out_twin face??
@@ -335,7 +335,7 @@ public class VertexPositioner {
     /// when the edge is not parametrized by t-value as normal edges
     /// so we need a projection of sl onto the edge instead
     Point projection_point(Solution sl) {
-        assert( edge.type == EdgeType.PARA_LINELINE );
+        assert( edge.type == EdgeType.PARA_LINELINE ) : " edge.type == EdgeType.PARA_LINELINE ";
         // edge given by
         // p = p0 + t * (p1-p0)   with t in [0,1]
         Point p0 = new Point(edge.source.position);

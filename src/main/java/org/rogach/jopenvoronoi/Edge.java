@@ -115,7 +115,7 @@ public class Edge {
 
     /// set edge parameters for PointSite-PointSite edge
     public void set_pp_parameters(Site s1, Site s2) {
-        assert( s1.isPoint() && s2.isPoint() );
+        assert( s1.isPoint() && s2.isPoint() ) : " s1.isPoint() && s2.isPoint() ";
         double d = (s1.position().sub(s2.position())).norm();
         double alfa1 = (s2.x() - s1.x()) / d;
         double alfa2 = (s2.y() - s1.y()) / d;
@@ -142,7 +142,7 @@ public class Edge {
 
     /// set ::PARABOLA edge parameters (between PointSite and LineSite).
     public void set_pl_parameters(Site s1, Site s2) {
-        assert( s1.isPoint() && s2.isLine() );
+        assert( s1.isPoint() && s2.isLine() ) : " s1.isPoint() && s2.isLine() ";
 
         type = EdgeType.PARABOLA;
         double alfa3 = s2.a()*s1.x() + s2.b()*s1.y() + s2.c(); // signed distance to line
@@ -173,7 +173,7 @@ public class Edge {
         double dx = p.x - endp.x;
         double dy = p.y - endp.y;
         double d = p.sub(endp).norm();
-        assert( d > 0 );
+        assert( d > 0 ) : " d > 0 ";
         x[0]=endp.x;
         x[2]=-dx/d; // negative of normalized direction from endp to p
         y[0]=endp.y;
@@ -185,7 +185,7 @@ public class Edge {
 
     /// set edge parametrization for LineSite-LineSite edge (parallel case)
     public void set_ll_para_parameters(Site s1, Site s2) {
-        assert( s1.isLine() && s2.isLine() );
+        assert( s1.isLine() && s2.isLine() ) : " s1.isLine() && s2.isLine() ";
         type = EdgeType.PARA_LINELINE;
 
         // find a point (x1,y1) on the line s1
@@ -222,7 +222,7 @@ public class Edge {
         double t = p1.sub(p2).dot(v) / v.dot(v);
         Point p1_proj = p2.add(v.mult(t));
 
-        assert( p1.sub(p1_proj).norm() > 0 );
+        assert( p1.sub(p1_proj).norm() > 0 ) : " p1.sub(p1_proj).norm() > 0 ";
 
         // from this point, go a distance d/2 in the direction of the normal
         // to find a point through which the bisector passes
@@ -242,7 +242,7 @@ public class Edge {
 
     /// set edge parametrization for LineSite-LineSite edge
     public void set_ll_parameters(Site s1, Site s2) {  // Held thesis p96
-        assert( s1.isLine() && s2.isLine() );
+        assert( s1.isLine() && s2.isLine() ) : " s1.isLine() && s2.isLine() ";
         type = EdgeType.LINELINE;
         double delta = s1.a()*s2.b() - s1.b()*s2.a() ;
 
@@ -254,7 +254,7 @@ public class Edge {
                 return;
             }
 
-        assert( delta != 0 );
+        assert( delta != 0 ) : " delta != 0 ";
         double alfa1 = ( s1.b()*s2.c()-s2.b()*s1.c() ) / delta;
         double alfa2 = ( s2.a()*s1.c()-s1.a()*s2.c() ) / delta;
         double alfa3 = -( s2.b()-s1.b() ) / delta;
@@ -273,7 +273,7 @@ public class Edge {
 
     /// set edge parameters when s1 is PointSite and s2 is ArcSite
     public void set_pa_parameters(Site s1, Site s2) {
-        assert( s1.isPoint() && s2.isArc() );
+        assert( s1.isPoint() && s2.isArc() ) : " s1.isPoint() && s2.isArc() ";
         //std::cout << "set_pa_parameters()\n";
 
         type = EdgeType.HYPERBOLA; // hyperbola or ellipse?
@@ -281,7 +281,7 @@ public class Edge {
 
         // distance between centers
         double d = Math.sqrt((s1.x() - s2.x())*(s1.x() - s2.x()) + (s1.y()-s2.y())*(s1.y()-s2.y()) );
-        assert( d > 0 );
+        assert( d > 0 ) : " d > 0 ";
         if (d<=s2.r()) {
             lamb2=-1.0;
             sign=!sign;
@@ -313,7 +313,7 @@ public class Edge {
 
     /// set edge parameters when s1 is ArcSite and s2 is LineSite
     public void set_la_parameters(Site s1, Site s2) {
-        assert( s1.isLine() && s2.isArc() );
+        assert( s1.isLine() && s2.isArc() ) : " s1.isLine() && s2.isArc() ";
         type = EdgeType.PARABOLA;
         double lamb2;
         if (s2.cw())
@@ -369,22 +369,22 @@ public class Edge {
 
     /// minimum t-value for LINE edge between PointSite and PointSite
     public double minimum_pp_t(Site s1, Site s2) {
-        assert( s1.isPoint() && s2.isPoint() );
+        assert( s1.isPoint() && s2.isPoint() ) : " s1.isPoint() && s2.isPoint() ";
         double p1p2 = s1.position().sub(s2.position()).norm() ;
-        assert( p1p2 >=0 );
+        assert( p1p2 >=0 ) : " p1p2 >=0 ";
         return p1p2/2; // this splits point-point edges at APEX
     }
     /// minimum t-value for ::PARABOLA edge
     public double minimum_pl_t(Site s1, Site s2) {
         double mint = - x[6]/(2.0*x[7]);
-        assert( mint >=0 );
+        assert( mint >=0 ) : " mint >=0 ";
         return mint;
     }
     /// minimum t-value for edge between PointSite and ArcSite
     public double minimum_pa_t(Site s1, Site s2) {
-        assert( s1.isPoint() && s2.isArc() );
+        assert( s1.isPoint() && s2.isArc() ) : " s1.isPoint() && s2.isArc() ";
         double p1p2 = s1.position().sub(s2.apex_point(s1.position())).norm(); // - s2->r() ;
-        assert( p1p2 >=0 );
+        assert( p1p2 >=0 ) : " p1p2 >=0 ";
         return p1p2/2; // this splits point-point edges at APEX
     }
 

@@ -22,16 +22,16 @@ public class QLLSolver extends Solver {
             else
                 quads.add( eqn );
         }
-        assert( !quads.isEmpty() );
+        assert( !quads.isEmpty() ) : " !quads.isEmpty() ";
 
         if ( lins.size()==1 || lins.size() == 0 ) {
-            assert( quads.size() == 3 || quads.size() == 2 );
+            assert( quads.size() == 3 || quads.size() == 2 ) : " quads.size() == 3 || quads.size() == 2 ";
             for (int i=1;i<quads.size();i++) {
                 quads.get(i).subEq(quads.get(0));
                 lins.add(quads.get(i));
             }
         }
-        assert( lins.size() == 2);  // At this point, we should have exactly two linear equations.
+        assert( lins.size() == 2) : " lins.size() == 2";
 
         // TODO:  pick the solution appraoch with the best numerical stability.
         // call all three permutations
@@ -56,7 +56,7 @@ public class QLLSolver extends Solver {
     // returns number of solutions found
     private int qll_solver(List<Eq> lins, int xi, int yi, int ti,
                            Eq quad, double k3, List<Solution> solns) {
-        assert( lins.size() == 2 );
+        assert( lins.size() == 2 ) : " lins.size() == 2 ";
         double ai = lins.get(0).get(xi); // first linear
         double bi = lins.get(0).get(yi);
         double ki = lins.get(0).get(ti);

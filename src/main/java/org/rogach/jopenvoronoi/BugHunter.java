@@ -48,7 +48,7 @@ public class BugHunter {
     public void reclassify() throws IOException {
         boolean assertionsOn = false;
         try {
-            assert(false);
+            assert(false) : "false";
         } catch (AssertionError ae) {
             assertionsOn = true;
         }
@@ -120,7 +120,9 @@ public class BugHunter {
         }
         String fingerprint = t.getClass().getName() + t.getMessage();
         if (t.getStackTrace().length > 0) {
-            fingerprint += t.getStackTrace()[0].toString();
+            fingerprint += t.getStackTrace()[0].getClassName();
+            fingerprint += t.getStackTrace()[0].getMethodName();
+            fingerprint += t.getStackTrace()[0].getFileName();
         }
         return bugNames.get(Math.abs(fingerprint.hashCode()) % bugNames.size());
     }

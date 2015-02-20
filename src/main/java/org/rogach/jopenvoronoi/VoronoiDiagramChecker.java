@@ -86,7 +86,7 @@ public class VoronoiDiagramChecker {
             if (v.status == Vtype )
                 type_verts.add(v); // build a vector of all Vtype vertices
         }
-        assert( !type_verts.isEmpty() );
+        assert( !type_verts.isEmpty() ) : " !type_verts.isEmpty() ";
         if (type_verts.size()==1) // set of 1 is allways connected
             return true;
 
@@ -108,7 +108,7 @@ public class VoronoiDiagramChecker {
                 done = true;
             }
         }
-        assert( !startEdges.isEmpty() );
+        assert( !startEdges.isEmpty() ) : " !startEdges.isEmpty() ";
         if ( startEdges.size() != 1 ) // when the Vtype vertices are connected, there is exactly one startEdge
             return false;
         else
@@ -164,7 +164,7 @@ public class VoronoiDiagramChecker {
 
             current_edge = current_edge.next;
             n++;
-            assert( n < 10000 ); // reasonable max
+            assert( n < 10000 ) : " n < 10000 ";
         } while( current_edge != start_edge);
         return true;
     }

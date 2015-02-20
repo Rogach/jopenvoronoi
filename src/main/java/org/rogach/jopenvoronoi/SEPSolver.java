@@ -48,8 +48,8 @@ public class SEPSolver extends Solver {
     public int solve( Site s1, double k1,
                       Site s2, double k2,
                       Site s3, double k3, List<Solution> slns ) {
-        assert( s1.isLine() && s2.isPoint() );
-        assert(s3.isLine());
+        assert( s1.isLine() && s2.isPoint() ) : " s1.isLine() && s2.isPoint() ";
+        assert(s3.isLine()) : "s3.isLine()";
 
         // separator direction
         Point sv = new Point(-s1.a(),-s1.b());

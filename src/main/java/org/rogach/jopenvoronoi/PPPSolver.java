@@ -7,7 +7,7 @@ import static org.rogach.jopenvoronoi.Numeric.sq;
 /// point-point-point Solver (based on Sugihara & Iri paper)
 public class PPPSolver extends Solver {
     public int solve( Site s1, double k1, Site s2, double k2, Site s3, double k3, List<Solution> slns ) {
-        assert( s1.isPoint() && s2.isPoint() && s3.isPoint() );
+        assert(s1.isPoint() && s2.isPoint() && s3.isPoint()) : "s1.isPoint() && s2.isPoint() && s3.isPoint()";
         Point pi = s1.position();
         Point pj = s2.position();
         Point pk = s3.position();
@@ -17,7 +17,7 @@ public class PPPSolver extends Solver {
             pi = pj;
             pj = tmp;
         }
-        assert( !pi.is_right(pj,pk) );
+        assert( !pi.is_right(pj,pk) ) : " !pi.is_right(pj,pk) ";
         // 2) point pk should have the largest angle. largest angle is opposite longest side.
         double longest_side = pi.sub(pj).norm();
         while (  (pj.sub(pk).norm() > longest_side) || ((pi.sub(pk).norm() > longest_side)) ) {
@@ -28,16 +28,16 @@ public class PPPSolver extends Solver {
             pi = tmp;
             longest_side = pi.sub(pj).norm();
         }
-        assert( !pi.is_right(pj,pk) );
-        assert( pi.sub(pj).norm() >=  pj.sub(pk).norm() );
-        assert( pi.sub(pj).norm() >=  pk.sub(pi).norm() );
+        assert( !pi.is_right(pj,pk) ) : " !pi.is_right(pj,pk) ";
+        assert( pi.sub(pj).norm() >=  pj.sub(pk).norm() ) : " pi.sub(pj).norm() >=  pj.sub(pk).norm() ";
+        assert( pi.sub(pj).norm() >=  pk.sub(pi).norm() ) : " pi.sub(pj).norm() >=  pk.sub(pi).norm() ";
 
         double J2 = (pi.y-pk.y)*(sq(pj.x-pk.x)+sq(pj.y-pk.y) )/2.0 -
             (pj.y-pk.y)*( sq(pi.x-pk.x)+sq(pi.y-pk.y) )/2.0;
         double J3 = (pi.x-pk.x)*( sq(pj.x-pk.x)+sq(pj.y-pk.y) )/2.0 -
             (pj.x-pk.x)*( sq(pi.x-pk.x)+sq(pi.y-pk.y) )/2.0;
         double J4 = (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
-        assert( J4 != 0.0 );
+        assert( J4 != 0.0 ) : " J4 != 0.0 ";
         if (J4==0.0) {
             throw new RuntimeException(" PPPSolver: Warning divide-by-zero!!");
         }
