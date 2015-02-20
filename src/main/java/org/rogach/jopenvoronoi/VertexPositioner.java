@@ -123,11 +123,13 @@ public class VertexPositioner {
 
         solver_dispatch(s1,k1,s2,k2,s3,+1, solutions); // a single k3=+1 call for s3->isPoint()
 
-        if (!s3.isPoint())
+        if (!s3.isPoint()) {
             solver_dispatch(s1,k1,s2,k2,s3,-1, solutions); // for lineSite or ArcSite we try k3=-1 also
+        }
 
-        if ( solutions.size() == 1 && (t_min<=solutions.get(0).t) && (t_max>=solutions.get(0).t) && (s3.in_region( solutions.get(0).p)) )
+        if ( solutions.size() == 1 && (t_min<=solutions.get(0).t) && (t_max>=solutions.get(0).t) && (s3.in_region( solutions.get(0).p)) ) {
             return solutions.get(0);
+        }
 
         // choose only in_region() solutions
         List<Solution> acceptable_solutions = new ArrayList<>();
@@ -137,9 +139,9 @@ public class VertexPositioner {
             }
         }
 
-        if ( acceptable_solutions.size() == 1) // if only one solution is found, return that.
+        if ( acceptable_solutions.size() == 1) { // if only one solution is found, return that.
             return acceptable_solutions.get(0);
-        else if (acceptable_solutions.size()>1) {
+        } else if (acceptable_solutions.size()>1) {
             // two or more points remain so we must further filter here!
             // filter further using edge_error
             double min_error=100;
@@ -157,28 +159,26 @@ public class VertexPositioner {
         if (solutions.isEmpty()) {
             return desperate_solution(s3);
         } else {
-            // choose solution closest to the t range
+            // choose solution that is best by dist_error
             Solution leastBad = null;
-            double leastDiff = Double.MAX_VALUE;
+            double leastErr = Double.MAX_VALUE;
             for (Solution s : solutions) {
-                double diff =
-                    (s.t > t_min && s.t < t_max) ? 0 :
-                    Math.min(
-                             (s.t < t_max) ? Double.MAX_VALUE : s.t - t_max,
-                             (s.t > t_min) ? Double.MAX_VALUE : t_min - s.t);
-                if (diff < leastDiff) {
+                double err = dist_error(edge, s, s3);
+                if (err < leastErr) {
                     leastBad = s;
-                    leastDiff = diff;
+                    leastErr = err;
                 }
             }
+
             // determine clamp direction
             double t = Math.max(t_min, Math.min(t_max, leastBad.t));
             Point p_sln = edge.point(t);
+
+            // find out on which side the solution lies
             double desp_k3 = 0;
             if (s3.isPoint())
                 desp_k3 = 1;
             else if ( s3.isLine() ) {
-                // find out on which side the solution lies
                 Point src_se = s3.start();
                 Point trg_se = s3.end();
                 Point left = src_se.add(trg_se).mult(0.5).add(trg_se.sub(src_se).xy_perp());

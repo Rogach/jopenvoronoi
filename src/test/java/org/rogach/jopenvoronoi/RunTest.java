@@ -80,4 +80,17 @@ public class RunTest {
         vd.check();
     }
 
+    @Test
+    public void lubed1() {
+        VoronoiDiagram vd = new VoronoiDiagram();
+        Vertex v1 = vd.insert_point_site(new Point(-0.4569868959788259,-0.6901889429096152));
+        Vertex v2 = vd.insert_point_site(new Point(-0.4777558843163665,-0.6741982953078733));
+        Vertex v3 = vd.insert_point_site(new Point(-0.5828928817215249,-0.6506785938772909));
+        Vertex v4 = vd.insert_point_site(new Point(-0.6509162259830449,-0.6905569065947034));
+
+        vd.insert_line_site(v1, v2);
+
+        vd.check();
+    }
+
 }
