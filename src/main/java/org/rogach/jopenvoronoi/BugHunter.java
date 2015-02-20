@@ -8,14 +8,8 @@ import java.io.*;
 public class BugHunter {
 
     public static void main(String[] args) throws IOException {
-        new BugHunter().collectFailures();
-        // new BugHunter().reclassify();
-    }
-
-    List<String> bugNames = new ArrayList<>();
-
-    public BugHunter() throws IOException {
-        loadBugNames();
+        // new BugHunter().collectFailures();
+        new BugHunter().reclassify();
     }
 
     public void collectFailures() throws IOException {
@@ -88,23 +82,42 @@ public class BugHunter {
         for (String fn : catchedErrors.keySet()) {
             Throwable t = catchedErrors.get(fn);
             System.out.printf("%s: %s, %s\n", fn, t.getClass().getName(), t.getMessage());
-            t.printStackTrace();
-        }
-    }
-
-    public void loadBugNames() throws IOException {
-        BufferedReader r = new BufferedReader(new FileReader("/usr/share/dict/british-english"));
-        String l;
-        while ((l = r.readLine()) != null) {
-            if (Pattern.matches("[A-Za-z]{4,6}", l) &&
-                !Pattern.matches(".*[sy]", l)) {
-                bugNames.add(l.toLowerCase());
+            for (StackTraceElement ste : t.getStackTrace()) {
+                if (ste.getClassName().startsWith("org.rogach.jopenvoronoi") &&
+                    !ste.getClassName().startsWith("org.rogach.jopenvoronoi.BugHunter") &&
+                    !ste.getClassName().startsWith("org.rogach.jopenvoronoi.EuclideanInput")) {
+                    System.out.printf("    at %s.%s(%s:%s)\n",
+                                      ste.getClassName(),
+                                      ste.getMethodName(),
+                                      ste.getFileName(),
+                                      ste.getLineNumber());
+                }
             }
         }
-        r.close();
     }
 
-    public String getFailureName(Throwable t) {
+    static List<String> bugNames = new ArrayList<>();
+
+    public static void loadBugNames() {
+        try {
+            BufferedReader r = new BufferedReader(new FileReader("/usr/share/dict/british-english"));
+            String l;
+            while ((l = r.readLine()) != null) {
+                if (Pattern.matches("[A-Za-z]{4,6}", l) &&
+                    !Pattern.matches(".*[sy]", l)) {
+                    bugNames.add(l.toLowerCase());
+                }
+            }
+            r.close();
+        } catch (IOException e) {
+            throw new Error(e);
+        }
+    }
+
+    public static String getFailureName(Throwable t) {
+        if (bugNames.isEmpty()) {
+            loadBugNames();
+        }
         String fingerprint = t.getClass().getName() + t.getMessage();
         if (t.getStackTrace().length > 0) {
             fingerprint += t.getStackTrace()[0].toString();
@@ -112,7 +125,7 @@ public class BugHunter {
         return bugNames.get(Math.abs(fingerprint.hashCode()) % bugNames.size());
     }
 
-    public String sizeEstimate(EuclideanInput ei) {
+    public static String sizeEstimate(EuclideanInput ei) {
         if (ei.points.size() > 300) {
             return "huge";
         } else if (ei.points.size() > 50) {
@@ -124,7 +137,7 @@ public class BugHunter {
         }
     }
 
-    public EuclideanInput minimizeFailure(EuclideanInput input) throws IOException {
+    public static EuclideanInput minimizeFailure(EuclideanInput input) throws IOException {
         System.out.printf("Minimizing input with %d points and %d segments\n",
                           input.points.size(), input.segments.size());
         EuclideanInput current = input;
