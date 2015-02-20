@@ -19,4 +19,10 @@ public class Solution {
         this.t = tv;
         this.k3 = k;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Solution(p = %s, t = %s, k = %d)",
+                             p, t, (int) k3);
+    }
 }

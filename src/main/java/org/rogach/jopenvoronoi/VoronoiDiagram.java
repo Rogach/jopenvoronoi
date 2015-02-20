@@ -1710,4 +1710,8 @@ public class VoronoiDiagram {
         } while(!current.equals(start));
         return count;
     }
+
+    public void outputToSvg(String fname) {
+        SvgOutput.output(this, fname);
+    }
 }
