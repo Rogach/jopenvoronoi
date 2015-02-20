@@ -2,7 +2,6 @@ package org.rogach.jopenvoronoi;
 
 import java.awt.geom.Point2D;
 import java.util.*;
-import java.util.Random;
 
 public class BenchmarkRandomPolygon extends Benchmark{
     public static void main(String[] args) throws Exception {

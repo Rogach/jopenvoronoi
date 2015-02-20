@@ -6,15 +6,15 @@ import java.awt.geom.Point2D;
 
 public class EuclideanInput {
     public List<Point2D> points;
-    public Map<Point2D, Point2D> segments;
+    public LinkedHashMap<Point2D, Point2D> segments;
 
-    public EuclideanInput(List<Point2D> points, Map<Point2D, Point2D> segments) {
+    public EuclideanInput(List<Point2D> points, LinkedHashMap<Point2D, Point2D> segments) {
         this.points = points;
         this.segments = segments;
     }
 
     public static EuclideanInput fromPolygon(List<Point2D> points) {
-        Map<Point2D, Point2D> segments = new HashMap<Point2D, Point2D>();
+        LinkedHashMap<Point2D, Point2D> segments = new LinkedHashMap<Point2D, Point2D>();
         for (int q = 0; q < points.size(); q++) {
             if (q != points.size() - 1) {
                 segments.put(points.get(q), points.get(q+1));
@@ -75,7 +75,7 @@ public class EuclideanInput {
 
     public static EuclideanInput readFromText(String fname) throws IOException {
         List<Point2D> points = new ArrayList<>();
-        Map<Point2D, Point2D> segments = new HashMap<>();
+        LinkedHashMap<Point2D, Point2D> segments = new LinkedHashMap<>();
         BufferedReader r = new BufferedReader(new FileReader(fname));
         String l;
         while ((l = r.readLine()) != null) {
