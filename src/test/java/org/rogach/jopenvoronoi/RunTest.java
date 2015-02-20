@@ -1,7 +1,6 @@
 package org.rogach.jopenvoronoi;
 
-import org.junit.Test;
-import org.junit.Ignore;
+import org.junit.*;
 
 public class RunTest {
 
@@ -31,6 +30,7 @@ public class RunTest {
             vd.check();
         } catch (Throwable t) {
             System.out.println(BugHunter.getFailureName(t));
+            t.printStackTrace();
             throw t;
         }
     }
@@ -52,6 +52,7 @@ public class RunTest {
             vd.check();
         } catch (Throwable t) {
             System.out.println(BugHunter.getFailureName(t));
+            t.printStackTrace();
             throw t;
         }
     }
@@ -78,6 +79,26 @@ public class RunTest {
             vd.check();
         } catch (Throwable t) {
             System.out.println(BugHunter.getFailureName(t));
+            t.printStackTrace();
+            throw t;
+        }
+    }
+
+    @Test
+    public void emerge1() {
+        try {
+            VoronoiDiagram vd = new VoronoiDiagram();
+            Vertex v1 = vd.insert_point_site(new Point(-0.0255809378746924,-0.40506709848555283));
+            Vertex v2 = vd.insert_point_site(new Point(-0.1070304600334181,-0.32199887924165504));
+            Vertex v3 = vd.insert_point_site(new Point(-0.08412200854010599,-0.4091862019580794));
+            Vertex v4 = vd.insert_point_site(new Point(-0.018610976572355775,-0.44924671559984736));
+
+            vd.insert_line_site(v1, v2);
+
+            vd.check();
+        } catch (Throwable t) {
+            System.out.println(BugHunter.getFailureName(t));
+            t.printStackTrace();
             throw t;
         }
     }

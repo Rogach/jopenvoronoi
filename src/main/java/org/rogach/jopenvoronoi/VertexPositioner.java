@@ -130,26 +130,22 @@ public class VertexPositioner {
             return solutions.get(0);
 
         // choose only in_region() solutions
-        List<Solution> rejected_solutions = new ArrayList<>();
+        List<Solution> acceptable_solutions = new ArrayList<>();
         for (Solution s : solutions) {
-            if (!s3.in_region(s.p)) {
-                rejected_solutions.add(s);
-            } else if (new t_filter(t_min, t_max).apply(s)) {
-                rejected_solutions.add(s);
+            if (s3.in_region(s.p) && s.t >= t_min && s.t <= t_max) {
+                acceptable_solutions.add(s);
             }
         }
-        solutions.removeAll(rejected_solutions);
 
-        if ( solutions.size() == 1) // if only one solution is found, return that.
-            return solutions.get(0);
-        else if (solutions.size()>1) {
+        if ( acceptable_solutions.size() == 1) // if only one solution is found, return that.
+            return acceptable_solutions.get(0);
+        else if (acceptable_solutions.size()>1) {
             // two or more points remain so we must further filter here!
             // filter further using edge_error
             double min_error=100;
             Solution min_solution = new Solution(new Point(0,0),0,0);
-            //std::cout << " edge_error filter: \n";
-            for (Solution s : solutions) {
-                double err = edge_error(s); //g[edge].error(s);
+            for (Solution s : acceptable_solutions) {
+                double err = edge_error(s);
                 if ( err < min_error) {
                     min_solution = s;
                     min_error = err;
@@ -158,10 +154,38 @@ public class VertexPositioner {
             return min_solution;
         }
 
-
-        // either 0, or >= 2 solutions found. This is an error.
-        //throw new RuntimeException("None, or too many solutions found!");
-        return desperate_solution(s3);
+        if (solutions.isEmpty()) {
+            return desperate_solution(s3);
+        } else {
+            // choose solution closest to the t range
+            Solution leastBad = solutions.get(0);
+            double leastDiff = Math.min(Math.max(0, leastBad.t - t_max), Math.max(0, t_min - leastBad.t));
+            for (Solution s : solutions) {
+                double diff = Math.min(Math.max(0, s.t - t_max), Math.max(0, t_min - s.t));
+                if (diff < leastDiff) {
+                    leastBad = s;
+                    leastDiff = diff;
+                }
+            }
+            // determine clamp direction
+            double t = Math.max(t_min, Math.min(t_max, leastBad.t));
+            Point p_sln = edge.point(t);
+            double desp_k3 = 0;
+            if (s3.isPoint())
+                desp_k3 = 1;
+            else if ( s3.isLine() ) {
+                // find out on which side the solution lies
+                Point src_se = s3.start();
+                Point trg_se = s3.end();
+                Point left = src_se.add(trg_se).mult(0.5).add(trg_se.sub(src_se).xy_perp());
+                if (p_sln.is_right(src_se,trg_se)) {
+                    desp_k3 = (s3.k()==1) ? -1 : 1;
+                } else {
+                    desp_k3 = (s3.k()==1) ? 1 : -1;
+                }
+            }
+            return new Solution(p_sln, t, desp_k3);
+        }
     }
 
     /// search numerically for a desperate solution along the solution-edge
