@@ -7,11 +7,11 @@ import org.apache.commons.math3.analysis.*;
 public abstract class Benchmark {
 
     public void execute() {
-        int max_points = 65536;
+        int max_points = 16384;
 
         System.out.println("| Number of points | Number of tests | Time per one test |");
         WeightedObservedPoints obs = new WeightedObservedPoints();
-        for (int num_points = 512; num_points <= max_points; num_points += 512) {
+        for (int num_points = 64; num_points <= max_points; num_points += 64) {
             int num_tests = max_points / num_points;
             long total_elapsed = 0;
             for (int test = 0; test < num_tests; test++) {
