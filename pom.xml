@@ -7,6 +7,10 @@
   <version>1.0-SNAPSHOT</version>
   <name>jopenvoronoi</name>
   <url>https://github.com/Rogach/jopenvoronoi</url>
+  <properties>
+    <main>Main</main>
+    <aspectj.version>1.8.5</aspectj.version>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -19,10 +23,13 @@
       <version>4.12</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>${aspectj.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-  <properties>
-    <main>Main</main>
-  </properties>
   <build>
     <plugins>
       <plugin>
@@ -33,6 +40,36 @@
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>aspectj-maven-plugin</artifactId>
+        <version>1.7</version>
+        <configuration>
+          <complianceLevel>1.7</complianceLevel>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>test-compile</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>${aspectj.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjtools</artifactId>
+            <version>${aspectj.version}</version>
+          </dependency>
+        </dependencies>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
