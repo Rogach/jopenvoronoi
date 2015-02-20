@@ -35,14 +35,6 @@ public class Main {
     public static EuclideanInput minimizeFailure(EuclideanInput input) throws IOException {
         System.out.printf("Minimizing input with %d points and %d segments\n",
                           input.points.size(), input.segments.size());
-        Throwable origException = null;
-        try {
-            input.buildVoronoiDiagram();
-            System.out.println("No minimization: input doesn't fail");
-            return input;
-        } catch (Throwable th) {
-            origException = th;
-        }
         EuclideanInput current = input;
         int batch = current.points.size() / 2;
         while (true) {
@@ -50,6 +42,8 @@ public class Main {
                               current.points.size(), current.segments.size());
             int c = 0;
             for (batch = batch > 0 ? batch : 1; batch >= 1; batch /= 2) {
+                System.out.printf("@%dx%d@", batch, current.points.size() / batch);
+                System.out.flush();
                 for (int offset = 0; offset + batch <= current.segments.size(); offset += batch) {
                     List<Point2D> pts = new ArrayList<>(current.segments.keySet());
                     Map<Point2D, Point2D> lessSegments = new HashMap<>(current.segments);
@@ -62,16 +56,12 @@ public class Main {
                         System.out.printf("|");
                         System.out.flush();
                     } catch (Throwable t) {
-                        if (t.getClass().equals(origException.getClass()) &&
-                            (t.getMessage() == origException.getMessage() ||
-                             t.getMessage().equals(origException.getMessage()))) {
-                            current = modified;
-                            for (int q = 0; q < batch; q++) {
-                                System.out.printf("-");
-                            }
-                            System.out.flush();
-                            c += batch;
+                        current = modified;
+                        for (int q = 0; q < batch; q++) {
+                            System.out.printf("-");
                         }
+                        System.out.flush();
+                        c += batch;
                     }
                 }
 
@@ -92,16 +82,12 @@ public class Main {
                             System.out.printf("*");
                             System.out.flush();
                         } catch (Throwable t) {
-                            if (t.getClass().equals(origException.getClass()) &&
-                                (t.getMessage() == origException.getMessage() ||
-                                 t.getMessage().equals(origException.getMessage()))) {
-                                current = modified;
-                                for (int q = 0; q < pointsRemoved; q++) {
-                                    System.out.printf(".");
-                                }
-                                System.out.flush();
-                                c += pointsRemoved;
+                            current = modified;
+                            for (int q = 0; q < pointsRemoved; q++) {
+                                System.out.printf(".");
                             }
+                            System.out.flush();
+                            c += pointsRemoved;
                         }
                     } else {
                         System.out.printf("*");
