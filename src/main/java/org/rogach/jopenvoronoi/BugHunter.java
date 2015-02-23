@@ -8,8 +8,13 @@ import java.io.*;
 public class BugHunter {
 
     public static void main(String[] args) throws IOException {
-        // new BugHunter().collectFailures();
-        new BugHunter().reclassify();
+        if (args.length > 0 && args[0].equals("reclassify")) {
+            new BugHunter().reclassify();
+        } else if (args.length > 0 && args[0].equals("collect")) {
+            new BugHunter().collectFailures();
+        } else {
+            throw new Error("unknown bug hunting action: " + Arrays.toString(args));
+        }
     }
 
     public void collectFailures() throws IOException {
@@ -56,8 +61,12 @@ public class BugHunter {
             System.err.println("You need assertions turned on for failure reclassifying");
             System.exit(1);
         }
+
+        int fixedFailures = 0;
+        int newFailures = 0;
         Map<String, Throwable> catchedErrors = new HashMap<>();
         for (String f : new File("failures").list()) {
+            boolean isFailure = !f.contains("noerror");
             Throwable t = null;
             EuclideanInput input = EuclideanInput.readFromText("failures/" + f);
             try {
@@ -65,6 +74,13 @@ public class BugHunter {
             } catch (Throwable th) {
                 t = th;
             }
+
+            if (isFailure && t == null) {
+                fixedFailures++;
+            } else if (!isFailure && t != null) {
+                newFailures++;
+            }
+
             Matcher m = Pattern.compile("\\d+").matcher(f);
             if (!m.find()) {
                 throw new RuntimeException(String.format("Strange file name: '%s'", f));
@@ -76,8 +92,10 @@ public class BugHunter {
                 catchedErrors.put(fn, t);
             }
             String newF = String.format("%s-%s-%s.txt", fn, sz, id);
-            System.out.printf("%s => %s\n", f, newF);
-            new File("failures/" + f).renameTo(new File("failures/" + newF));
+            if (!f.equals(newF)) {
+                System.out.printf("%s => %s\n", f, newF);
+                new File("failures/" + f).renameTo(new File("failures/" + newF));
+            }
         }
         for (String fn : catchedErrors.keySet()) {
             Throwable t = catchedErrors.get(fn);
@@ -94,6 +112,8 @@ public class BugHunter {
                 }
             }
         }
+
+        System.out.printf("fixed %d failures, introduced %d failures\n", fixedFailures, newFailures);
     }
 
     static List<String> bugNames = new ArrayList<>();

@@ -8,53 +8,15 @@ import org.apache.commons.math3.optim.univariate.*;
 
 /// Calculates the (x,y) position of a VoronoiVertex in the VoronoiDiagram
 public class VertexPositioner {
-    /// predicate for rejecting out-of-region solutions
-    class in_region_filter {
-        /// the Site
-        Site site_;
-        /// \param s Site for in_region check
-        public in_region_filter(Site s) {
-            this.site_ = s;
-        }
-        /// is Solution \a s in_region of Site \a site_ ?
-        public boolean apply(Solution s) {
-            return !site_.in_region(s.p);
-        }
-    }
 
-    /// predicate for filtering solutions based on t-value in [tmin,tmax] range
-    class t_filter {
-        /// minimum offset-distance value
-        double tmin_;
-        /// maximum offset-distance value
-        double tmax_;
-
-        /// create filter for [tmin,tmax]
-        public t_filter(double tmin, double tmax) {
-            this.tmin_ = tmin;
-            this.tmax_ = tmax;
-        }
-
-        /// is the given Solution \a s in the offset-distance interval [tmin,tmax] ?
-        public boolean apply(Solution s) {
-            double eps=1e-9;
-            double tround=s.t;
-            if ( Math.abs(s.t-tmin_) < eps )
-                tround=tmin_;
-            else if (Math.abs(s.t-tmax_)<eps)
-                tround=tmax_;
-            return (tround<tmin_) || (tround>tmax_); // these points rejected!
-        }
-    };
-
-// solvers, to which we dispatch, depending on the input sites
-
+    // solvers, to which we dispatch, depending on the input sites
     Solver ppp_solver; ///< point-point-point solver
     Solver lll_solver; ///< line-line-line solver
     Solver lll_para_solver; ///< solver
     Solver qll_solver; ///< solver
     Solver sep_solver; ///< separator solver
     Solver alt_sep_solver; ///< alternative separator solver
+
 // DATA
     HalfEdgeDiagram g;  ///< reference to the VD graph.
     double t_min; ///< minimum offset-distance
@@ -452,4 +414,4 @@ public class VertexPositioner {
         return true;
     }
 
-};
+}
