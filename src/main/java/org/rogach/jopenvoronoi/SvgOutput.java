@@ -5,10 +5,22 @@ import java.io.*;
 import java.util.*;
 
 public class SvgOutput {
-    private static double WIDTH = 0.2;
-    private static double SCALE = 256;
+
+    private VoronoiDiagram vd;
+    public double CX = 0;
+    public double CY = 0;
+    public double WIDTH = 0.2;
+    public double SCALE = 256;
+
+    public SvgOutput(VoronoiDiagram vd) {
+        this.vd = vd;
+    }
 
     public static void output(VoronoiDiagram vd, String fname) {
+        new SvgOutput(vd).writeTo(fname);
+    }
+
+    public void writeTo(String fname) {
         PrintWriter w;
         try {
             w = new PrintWriter(fname);
@@ -37,7 +49,7 @@ public class SvgOutput {
         w.close();
     }
 
-    public static void writeVertex(PrintWriter w, Vertex v) {
+    private void writeVertex(PrintWriter w, Vertex v) {
         String col = color_string(vertex_color(v));
         Point p = scale(v.position);
         w.printf("<circle cx='%f' cy='%f' r='%f' fill='%s'/>\n",
@@ -54,7 +66,7 @@ public class SvgOutput {
                  p.x, p.y, WIDTH * 5, v.position.x, v.position.y);
     }
 
-    public static void writeEdge(PrintWriter w, Edge e) {
+    private void writeEdge(PrintWriter w, Edge e) {
         Vertex src = e.source;
         Vertex trg = e.target;
         Point src_p = scale(src.position);
@@ -85,7 +97,7 @@ public class SvgOutput {
         }
         StringBuilder sb = new StringBuilder();
         for (Point p : points) {
-            sb.append(String.format("%.3f,%.3f", p.x, p.y));
+            sb.append(String.format("%f,%f", p.x, p.y));
             sb.append(" ");
         }
         if (!points.isEmpty()) {
@@ -94,19 +106,19 @@ public class SvgOutput {
         }
     }
 
-    public static Point scale(Point p) {
-        return new Point(p.x * SCALE + 512, -p.y * SCALE + 512);
+    private Point scale(Point p) {
+        return new Point((p.x - CX) * SCALE + 512, -(p.y-CY) * SCALE + 512);
     }
 
-    public static String edge_color_string(Edge e) {
+    private static String edge_color_string(Edge e) {
         return color_string(edge_color(e));
     }
 
-    public static String color_string(Color c) {
+    private static String color_string(Color c) {
         return String.format("rgb(%d,%d,%d)", c.getRed(), c.getGreen(), c.getBlue());
     }
 
-    public static Color edge_color(Edge e) {
+    private static Color edge_color(Edge e) {
         switch (e.type) {
         case LINESITE: return Color.YELLOW;
         case PARABOLA: return Color.CYAN;
@@ -118,7 +130,7 @@ public class SvgOutput {
         }
     }
 
-    public static Color vertex_color(Vertex v) {
+    private static Color vertex_color(Vertex v) {
         switch (v.type) {
         case OUTER: return Color.GRAY;
         case NORMAL: return Color.RED;

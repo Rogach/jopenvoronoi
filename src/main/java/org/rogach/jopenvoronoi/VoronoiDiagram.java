@@ -1710,4 +1710,13 @@ public class VoronoiDiagram {
     public void outputToSvg(String fname) {
         SvgOutput.output(this, fname);
     }
+
+    public void outputToSvg(String fname, double cx, double cy, double scale, double width) {
+        SvgOutput s = new SvgOutput(this);
+        s.CX = cx;
+        s.CY = cy;
+        s.SCALE = scale;
+        s.WIDTH = width;
+        s.writeTo(fname);
+    }
 }
