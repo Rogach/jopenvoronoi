@@ -23,8 +23,10 @@ public class BugHunter {
                 EuclideanInput.fromPolygon(RandomPolygon.generate_polygon(512));
             try {
                 input.buildVoronoiDiagram();
-                System.out.printf("ok (%d)\n", q);
+                System.out.printf("☺");
+                System.out.flush();
             } catch (Throwable tOrig) {
+                System.out.println();
                 EuclideanInput minimized = minimizeFailure(input);
                 Throwable tMin = null;
                 try {

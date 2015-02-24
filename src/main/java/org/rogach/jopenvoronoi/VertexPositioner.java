@@ -116,7 +116,7 @@ public class VertexPositioner {
                 return new Solution(edge.target.position, edge.target.dist(), k);
             }
         }
-        
+
         List<Solution> solutions = new ArrayList<>();
 
         solver_dispatch(s1, k1, s2, k2, s3, +1, solutions); // a single k3=+1 call for s3->isPoint()
