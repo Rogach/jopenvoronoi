@@ -122,10 +122,14 @@ public class VertexPositioner {
             return desperate_solution(s3);
         } else {
             // choose solution that is best by dist_error
-            Solution leastBad = null;
+            Solution leastBad = solutions.get(0);
             double leastErr = Double.MAX_VALUE;
             for (Solution s : solutions) {
-                double err = dist_error(edge, s, s3);
+                // punish wrong solutions
+                double derr = dist_error(edge, s, s3);
+                // punish solutions outside t range
+                double terr = Math.max(0, Math.max((s.t - t_max), (t_min - s.t)));
+                double err = derr + terr;
                 if (err < leastErr) {
                     leastBad = s;
                     leastErr = err;

@@ -832,9 +832,9 @@ public class VoronoiDiagram {
         for (Edge e : v.out_edges) {
             Vertex w = e.target;
             if ( (w.status == VertexStatus.UNDECIDED) && (!w.in_queue) ) {
-                    // when pushing onto queue we also evaluate in_circle predicate so that we process vertices in the correct order
+                // when pushing onto queue we also evaluate in_circle predicate so that we process vertices in the correct order
                 vertexQueue.add(new Pair<Vertex, Double>(w, w.in_circle(site.apex_point(w.position)) ) );
-                    w.in_queue=true;
+                w.in_queue=true;
             }
         }
     }
