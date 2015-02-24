@@ -109,6 +109,8 @@ public class BugHunter {
             if (!f.equals(newF)) {
                 System.out.printf("%s => %s\n", f, newF);
                 new File("failures/" + f).renameTo(new File("failures/" + newF));
+            } else {
+                System.out.printf("%s =|\n", f);
             }
         }
         for (String fn : catchedErrors.keySet()) {

@@ -251,12 +251,12 @@ public class VoronoiDiagram {
         SeparatorTarget neg_start_target = find_separator_target(start.face, neg_sep_start);
 
         // add positive separator edge at start
-        add_separator( start.face , start_null_face, pos_start_target, pos_sep_start, pos_face.site , neg_face.site );
+        add_separator(start.face, start_null_face, pos_start_target, pos_sep_start, pos_face.site , neg_face.site );
 
         if (step==current_step) return false; current_step++;
 
         // add negative separator edge at start
-        add_separator( start.face , start_null_face, neg_start_target, neg_sep_start, pos_face.site , neg_face.site );
+        add_separator(start.face, start_null_face, neg_start_target, neg_sep_start, pos_face.site , neg_face.site );
         start.face.status = FaceStatus.NONINCIDENT; // face is now done.
         assert( vd_checker.face_ok( start.face ) ) : " vd_checker.face_ok( start.face ) ";
 

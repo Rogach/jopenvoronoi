@@ -119,10 +119,32 @@ public class VertexPositioner {
 
         List<Solution> solutions = new ArrayList<>();
 
-        solver_dispatch(s1, k1, s2, k2, s3, +1, solutions); // a single k3=+1 call for s3->isPoint()
+        if (s3.isLine() &&
+                ((s1.isPoint() && s2.isLine() && (s3.start().equals(s1.position()) || s3.end().equals(s1.position()))) ||
+                 (s2.isPoint() && s1.isLine() && (s3.start().equals(s2.position()) || s3.end().equals(s2.position()))))) {
+            Site ptsite = s1.isPoint() ? s1 : s2;
+            Edge ed = edge;
+            if (ed.face.site != ptsite) {
+                ed = edge.twin;
+            }
+            assert(ed.source.status == VertexStatus.IN || ed.target.status == VertexStatus.IN) : "edge to be split has no IN vertex";
 
-        if (!s3.isPoint()) {
-            solver_dispatch(s1,k1,s2,k2,s3,-1, solutions); // for lineSite or ArcSite we try k3=-1 also
+            double k;
+            if (ed.source.status == VertexStatus.IN) {
+                k = -1;
+            } else {
+                k = +1;
+            }
+            if (s3.start().equals(ptsite.position())) {
+                k = -k;
+            }
+            solver_dispatch(s1, k1, s2, k2, s3, k, solutions);
+        } else {
+            solver_dispatch(s1, k1, s2, k2, s3, +1, solutions); // a single k3=+1 call for s3->isPoint()
+
+            if (!s3.isPoint()) {
+                solver_dispatch(s1, k1, s2, k2, s3, -1, solutions); // for lineSite or ArcSite we try k3=-1 also
+            }
         }
 
         if ( solutions.size() == 1 && (t_min<=solutions.get(0).t) && (t_max>=solutions.get(0).t) && (s3.in_region( solutions.get(0).p)) ) {
