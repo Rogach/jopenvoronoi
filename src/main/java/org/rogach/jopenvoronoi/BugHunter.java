@@ -68,18 +68,24 @@ public class BugHunter {
         int newFailures = 0;
         Map<String, Throwable> catchedErrors = new HashMap<>();
         for (String f : new File("failures").list()) {
-            boolean isFailure = !f.contains("noerror");
-            Throwable t = null;
             EuclideanInput input = EuclideanInput.readFromText("failures/" + f);
+
+            boolean isOrigFailure = !f.contains("noerror");
+            boolean isInputValid = !isSelfIntersected(input);
+
+            Throwable t = null;
             try {
                 input.buildVoronoiDiagram();
             } catch (Throwable th) {
                 t = th;
             }
+            if (t != null && isInputValid) {
+                catchedErrors.put(getFailureName(t), t);
+            }
 
-            if (isFailure && t == null) {
+            if (isOrigFailure && t == null) {
                 fixedFailures++;
-            } else if (!isFailure && t != null) {
+            } else if (!isOrigFailure && t != null) {
                 newFailures++;
             }
 
@@ -88,12 +94,18 @@ public class BugHunter {
                 throw new RuntimeException(String.format("Strange file name: '%s'", f));
             }
             String id = m.group();
-            String sz = sizeEstimate(input);
-            String fn = t == null ? "noerror" : getFailureName(t);
-            if (t != null) {
-                catchedErrors.put(fn, t);
+
+            String failureName;
+            if (!isInputValid) {
+                failureName = "invalid";
+            } else if (t == null) {
+                failureName = "noerror";
+            } else {
+                failureName = getFailureName(t);
             }
-            String newF = String.format("%s-%s-%s.txt", fn, sz, id);
+            String sz = sizeEstimate(input);
+            String newF = String.format("%s-%s-%s.txt", failureName, sz, id);
+
             if (!f.equals(newF)) {
                 System.out.printf("%s => %s\n", f, newF);
                 new File("failures/" + f).renameTo(new File("failures/" + newF));
@@ -245,6 +257,7 @@ public class BugHunter {
     }
 
     public static boolean isSelfIntersected(EuclideanInput input) {
+        // check for intersecting segments
         for (Point2D src1 : input.segments.keySet()) {
             for (Point2D src2 : input.segments.keySet()) {
                 Point2D trg1 = input.segments.get(src1);
@@ -255,12 +268,25 @@ public class BugHunter {
                     ) {
                     if (Line2D.linesIntersect(src1.getX(), src1.getY(), trg1.getX(), trg1.getY(),
                                               src2.getX(), src2.getY(), trg2.getX(), trg2.getY())) {
-                        System.out.printf("intersecting: %s->%s and %s->%s\n", src1, trg1, src2, trg2);
                         return true;
                     }
                 }
             }
         }
+
+        // check for points lying directly on other segments
+        for (Point2D src : input.segments.keySet()) {
+            Point2D trg = input.segments.get(src);
+            for (Point2D p : input.points) {
+                if (!p.equals(src) && !p.equals(trg)) {
+                    if (Line2D.ptSegDist(src.getX(), src.getY(), trg.getX(), trg.getY(), p.getX(), p.getY()) < 1e-10) {
+                        return true;
+                    }
+                }
+            }
+        }
+
         return false;
     }
+
 }
