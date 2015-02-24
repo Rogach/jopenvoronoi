@@ -164,6 +164,16 @@ public class BugHunter {
     public static EuclideanInput minimizeFailure(EuclideanInput input) throws IOException {
         System.out.printf("Minimizing input with %d points and %d segments\n",
                           input.points.size(), input.segments.size());
+        Throwable origException = null;
+        try {
+            input.buildVoronoiDiagram();
+        } catch (Throwable e) {
+            origException = e;
+        }
+        if (origException == null) {
+            System.out.println("No exception, nothing to minimize");
+            return input;
+        }
         EuclideanInput current = input;
         int batch = current.points.size() / 2;
         while (true) {
@@ -234,4 +244,23 @@ public class BugHunter {
         return current;
     }
 
+    public static boolean isSelfIntersected(EuclideanInput input) {
+        for (Point2D src1 : input.segments.keySet()) {
+            for (Point2D src2 : input.segments.keySet()) {
+                Point2D trg1 = input.segments.get(src1);
+                Point2D trg2 = input.segments.get(src2);
+                if (!src1.equals(src2) && // do not compare segment with itself
+                    // do not count connected segments as intersecting
+                    !src1.equals(trg2) && !src2.equals(trg1) && !trg1.equals(trg2)
+                    ) {
+                    if (Line2D.linesIntersect(src1.getX(), src1.getY(), trg1.getX(), trg1.getY(),
+                                              src2.getX(), src2.getY(), trg2.getX(), trg2.getY())) {
+                        System.out.printf("intersecting: %s->%s and %s->%s\n", src1, trg1, src2, trg2);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
