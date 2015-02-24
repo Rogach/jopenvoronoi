@@ -173,7 +173,6 @@ public class Edge {
         double dx = p.x - endp.x;
         double dy = p.y - endp.y;
         double d = p.sub(endp).norm();
-        assert( d > 0 ) : " d > 0 ";
         x[0]=endp.x;
         x[2]=-dx/d; // negative of normalized direction from endp to p
         y[0]=endp.y;

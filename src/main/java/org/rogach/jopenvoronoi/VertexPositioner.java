@@ -81,9 +81,45 @@ public class VertexPositioner {
     Solution position(Site s1, double k1, Site s2, double k2, Site s3) {
         assert( (k1==1) || (k1 == -1) ) : " (k1==1) || (k1 == -1) ";
         assert( (k2==1) || (k2 == -1) ) : " (k2==1) || (k2 == -1) ";
+
+        if (s3.isLine()) {
+            // special handling for the case when site and edge endpoints share a common point -
+            // simply select one of the edge endpoints as solution
+            Point e_src = edge.source.position;
+            if (
+                    ((s1.isPoint() && s1.position().equals(e_src)) || (s1.isLine() && (s1.start().equals(e_src) || s1.end().equals(e_src)))) &&
+                    ((s2.isPoint() && s2.position().equals(e_src)) || (s2.isLine() && (s2.start().equals(e_src) || s2.end().equals(e_src)))) &&
+                    ((s3.isPoint() && s3.position().equals(e_src)) || (s3.isLine() && (s3.start().equals(e_src) || s3.end().equals(e_src))))) {
+                Point src_se = s3.start();
+                Point trg_se = s3.end();
+                double k;
+                if (edge.target.position.is_right(src_se,trg_se)) {
+                    k = (s3.k()==1) ? -1 : 1;
+                } else {
+                    k = (s3.k()==1) ? 1 : -1;
+                }
+                return new Solution(edge.source.position, edge.source.dist(), k);
+            }
+            Point e_trg = edge.target.position;
+            if (
+                    ((s1.isPoint() && s1.position().equals(e_trg)) || (s1.isLine() && (s1.start().equals(e_trg) || s1.end().equals(e_trg)))) &&
+                            ((s2.isPoint() && s2.position().equals(e_trg)) || (s2.isLine() && (s2.start().equals(e_trg) || s2.end().equals(e_trg)))) &&
+                            ((s3.isPoint() && s3.position().equals(e_trg)) || (s3.isLine() && (s3.start().equals(e_trg) || s3.end().equals(e_trg))))) {
+                Point src_se = s3.start();
+                Point trg_se = s3.end();
+                double k;
+                if (edge.source.position.is_right(src_se,trg_se)) {
+                    k = (s3.k()==1) ? -1 : 1;
+                } else {
+                    k = (s3.k()==1) ? 1 : -1;
+                }
+                return new Solution(edge.target.position, edge.target.dist(), k);
+            }
+        }
+        
         List<Solution> solutions = new ArrayList<>();
 
-        solver_dispatch(s1,k1,s2,k2,s3,+1, solutions); // a single k3=+1 call for s3->isPoint()
+        solver_dispatch(s1, k1, s2, k2, s3, +1, solutions); // a single k3=+1 call for s3->isPoint()
 
         if (!s3.isPoint()) {
             solver_dispatch(s1,k1,s2,k2,s3,-1, solutions); // for lineSite or ArcSite we try k3=-1 also
@@ -147,7 +183,6 @@ public class VertexPositioner {
             else if ( s3.isLine() ) {
                 Point src_se = s3.start();
                 Point trg_se = s3.end();
-                Point left = src_se.add(trg_se).mult(0.5).add(trg_se.sub(src_se).xy_perp());
                 if (p_sln.is_right(src_se,trg_se)) {
                     desp_k3 = (s3.k()==1) ? -1 : 1;
                 } else {
@@ -179,7 +214,6 @@ public class VertexPositioner {
             // find out on which side the desperate solution lies
             Point src_se = s3.start();
             Point trg_se = s3.end();
-            Point left = src_se.add(trg_se).mult(0.5).add(trg_se.sub(src_se).xy_perp());
             if (p_sln.is_right(src_se,trg_se)) {
                 desp_k3 = (s3.k()==1) ? -1 : 1;
             } else {

@@ -81,6 +81,11 @@ public class Point {
     public Point sub(Point p) {
         return new Point(x - p.x, y - p.y);
     }
+    public double distance(Point p) {
+        double dx = x - p.x;
+        double dy = y - p.y;
+        return Math.sqrt(dx*dx + dy*dy);
+    }
     public void multEq(double a) {
         x *= a;
         y *= a;
