@@ -1,18 +1,11 @@
 package org.rogach.jopenvoronoi;
 
-import java.awt.geom.Point2D;
-import java.util.PriorityQueue;
-import ags.utils.dataStructures.trees.thirdGenKD.*;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Comparator;
-import java.util.Arrays;
-import org.apache.commons.math3.analysis.solvers.BracketingNthOrderBrentSolver;
+import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
+import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 import org.apache.commons.math3.analysis.solvers.AllowedSolution;
+import org.apache.commons.math3.analysis.solvers.BracketingNthOrderBrentSolver;
+
+import java.util.*;
 
 /// \brief Voronoi diagram.
 ///
@@ -20,7 +13,7 @@ import org.apache.commons.math3.analysis.solvers.AllowedSolution;
 ///
 /// the dual of a voronoi diagram is the delaunay diagram(triangulation).
 ///  voronoi-faces are dual to delaunay-vertices.
-///  vornoi-vertices are dual to delaunay-faces
+///  voronoi-vertices are dual to delaunay-faces
 ///  voronoi-edges are dual to delaunay-edges
 public class VoronoiDiagram {
 
@@ -763,10 +756,13 @@ public class VoronoiDiagram {
             Edge start = current;
             do {
                 Vertex w = current.target;
-                if ( !w.equals(v) && w.status == VertexStatus.IN && g.has_edge(w,v) )  // v should be adjacent to an IN vertex on the face
+                if ( !w.equals(v) && w.status == VertexStatus.IN && g.has_edge(w,v) ) { // v should be adjacent to an IN vertex on the face
                     face_ok = true;
-                else if ( !w.equals(v) && ( w.type == VertexType.ENDPOINT || w.type == VertexType.APEX  || w.type == VertexType.SPLIT) ) // if we are next to an ENDPOINT, then ok(?)
-                    face_ok=true;
+                } else if ( !w.equals(v) && ( w.type == VertexType.ENDPOINT || w.type == VertexType.APEX  || w.type == VertexType.SPLIT) ) {// if we are next to an ENDPOINT, then ok(?)
+                    face_ok = true;
+                } else if (!w.equals(v) && w.type == VertexType.SEPPOINT && g.has_edge(w, v)) {
+                    face_ok = true;
+                }
                 current = current.next;
             } while(!current.equals(start));
 

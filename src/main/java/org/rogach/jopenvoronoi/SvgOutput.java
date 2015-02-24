@@ -6,7 +6,7 @@ import java.util.*;
 
 public class SvgOutput {
     private static double WIDTH = 0.2;
-    private static double SCALE = 512;
+    private static double SCALE = 256;
 
     public static void output(VoronoiDiagram vd, String fname) {
         PrintWriter w;
@@ -95,7 +95,7 @@ public class SvgOutput {
     }
 
     public static Point scale(Point p) {
-        return new Point(p.x * SCALE/2 + SCALE, -p.y * SCALE/2 + SCALE);
+        return new Point(p.x * SCALE + 512, -p.y * SCALE + 512);
     }
 
     public static String edge_color_string(Edge e) {
