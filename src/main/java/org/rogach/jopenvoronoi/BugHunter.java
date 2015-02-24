@@ -18,9 +18,9 @@ public class BugHunter {
     }
 
     public void collectFailures() throws IOException {
-        for (int q = 0; ; q++) {
+        while (true) {
             EuclideanInput input =
-                EuclideanInput.fromPolygon(RandomPolygon.generate_polygon(512));
+                EuclideanInput.fromPolygon(RandomPolygon.generate_polygon(4096));
             try {
                 input.buildVoronoiDiagram();
                 System.out.printf("☺");
