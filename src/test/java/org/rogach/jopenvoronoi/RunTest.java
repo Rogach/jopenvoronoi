@@ -215,4 +215,24 @@ public class RunTest {
         VoronoiDiagram vd = input.buildVoronoiDiagram();
         vd.check();
     }
+
+    @Test
+    public void lubed4() {
+        // problem with almost parallel edges
+        // 1e-300 threshold in Edge.set_ll_parameters
+        // seems to be very high, setting it to 1e-14 solved this problem
+        VoronoiDiagram vd = new VoronoiDiagram();
+
+        Vertex v1 = vd.insert_point_site(new Point(-0.3095381849830035,-0.3085714285714274));
+        Vertex v2 = vd.insert_point_site(new Point(-0.25015358586635633,-0.3428571428571417));
+        Vertex v3 = vd.insert_point_site(new Point(-0.3689227840996509,-0.4114285714285704));
+        Vertex v4 = vd.insert_point_site(new Point(-0.3095381849830037,-0.4457142857142846));
+        Vertex v5 = vd.insert_point_site(new Point(-0.2501535858663565,-0.4114285714285703));
+
+        vd.insert_line_site(v2, v1);
+        vd.insert_line_site(v4, v3);
+        vd.insert_line_site(v5, v4);
+
+        vd.check();
+    }
 }

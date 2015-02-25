@@ -247,7 +247,7 @@ public class Edge {
 
         // (numerically) parallel line segments - the generic LLL solver
         // is numerically unstable for parallel cases
-        if (Math.abs(delta) <= 1e-300)
+        if (Math.abs(delta) <= 1e-14)
             {
                 set_ll_para_parameters(s1,s2);
                 return;
