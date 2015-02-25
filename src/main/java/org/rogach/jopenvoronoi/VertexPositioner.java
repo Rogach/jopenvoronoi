@@ -187,11 +187,21 @@ public class VertexPositioner {
                 double derr = dist_error(edge, s, s3);
                 // punish solutions outside t range
                 double terr = Math.max(0, Math.max((s.t - t_max), (t_min - s.t)));
+                if (edge.type == EdgeType.PARA_LINELINE) {
+                    Point s_p = s.p.sub(edge.source.position);
+                    Point s_e = edge.target.position.sub(edge.source.position);
+                    double dist = s_p.dot(s_e) / s_e.dot(s_e);
+                    terr = Math.max(0, Math.max(dist - 1, -dist));
+                }
                 double err = derr + terr;
                 if (err < leastErr) {
                     leastBad = s;
                     leastErr = err;
                 }
+            }
+
+            if (edge.type == EdgeType.PARA_LINELINE) {
+                return leastBad;
             }
 
             // determine clamp direction

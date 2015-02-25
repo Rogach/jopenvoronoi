@@ -171,4 +171,20 @@ public class RunTest {
 
         vd.check();
     }
+
+    @Test
+    public void khazar2() {
+        VoronoiDiagram vd = new VoronoiDiagram();
+
+        Vertex v1 = vd.insert_point_site(new Point(-0.09999999999999998,0.5));
+        Vertex v2 = vd.insert_point_site(new Point(-0.09999999999999998,0.7));
+        Vertex v3 = vd.insert_point_site(new Point(-0.3,0.5));
+        Vertex v4 = vd.insert_point_site(new Point(-0.3,0.7));
+
+        vd.insert_line_site(v1, v3);
+        vd.insert_line_site(v2, v4);
+        vd.insert_line_site(v2, v1);
+
+        vd.check();
+    }
 }
