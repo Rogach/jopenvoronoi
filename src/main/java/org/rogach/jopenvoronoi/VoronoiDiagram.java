@@ -1595,6 +1595,7 @@ public class VoronoiDiagram {
                                  Pair<Face,Face> null_face ) {
         Edge current_edge = f.edge;
         Edge start_edge = current_edge;
+        int c = 0;
         do {
             assert( vd_checker.check_edge(current_edge) ) : " vd_checker.check_edge(current_edge) ";
             Vertex current_target = current_edge.target; // an edge on the new face
@@ -1644,6 +1645,10 @@ public class VoronoiDiagram {
                 }
             }
             current_edge = current_edge.next; // jump to the next edge
+            c++;
+            if (c > 30000) {
+                throw new AssertionError("c < 30000");
+            }
         } while (!current_edge.equals(start_edge));
     }
 

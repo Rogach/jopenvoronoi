@@ -249,7 +249,9 @@ public class HalfEdgeDiagram {
             verts.add(current_target);
             assert(current.face == current.next.face) : "current.face == current.next.face";
             current = current.next;
-            assert(count < 3000000) : "count < 3000000";
+            if (count > 30000) {
+                throw new AssertionError("count < 30000");
+            }
             count++;
         } while ( current != startedge );
         return verts;
