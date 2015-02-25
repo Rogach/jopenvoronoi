@@ -63,16 +63,18 @@ public class LLLSolver extends Solver {
                     double delta = Math.abs(eq.get(i).a*eq.get(j).b - eq.get(j).a*eq.get(i).b);
                     if (delta <= 1e-300)
                         {
-                            s1 = sites[i];
-                            k1 = kvals[i];
-                            s2 = sites[j];
-                            k2 = kvals[j];
-                            s3 = sites[(i+2)%3];
-                            k3 = kvals[(i+2)%3];
                             LLLPARASolver para_solver = new LLLPARASolver();
-                            para_solver.set_debug(true);
-                            para_solver.set_silent(false);
-                            return para_solver.solve(s1, k1, s2, k2, s3, k3, slns);
+                            List<Solution> paraSolutions = new ArrayList<>();
+                            para_solver.solve(sites[i], kvals[i], sites[j], kvals[j], sites[(i+2)%3], kvals[(i+2)%3], paraSolutions);
+                            int solution_count = 0;
+                            for (Solution s : paraSolutions) {
+                                // check that solution has proper offset-direction
+                                if (s3.end().sub(s3.start()).cross(s.p.sub(s3.start())) * k3 >= 0) {
+                                    slns.add(s);
+                                    solution_count++;
+                                }
+                            }
+                            return solution_count;
                         }
                 }
         }

@@ -17,7 +17,6 @@ public class TestWrapperAspect {
                           t.getMessage());
         for (StackTraceElement ste : t.getStackTrace()) {
             if (ste.getClassName().startsWith("org.rogach.jopenvoronoi") &&
-                !ste.getClassName().startsWith("org.rogach.jopenvoronoi.BugHunter") &&
                 !ste.getClassName().startsWith("org.rogach.jopenvoronoi.EuclideanInput")) {
                 System.out.printf("    at %s.%s(%s:%s)\n",
                                   ste.getClassName(),

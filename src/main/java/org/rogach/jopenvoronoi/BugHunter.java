@@ -8,18 +8,25 @@ import java.io.*;
 public class BugHunter {
 
     public static void main(String[] args) throws IOException {
-        // new BugHunter().collectFailures();
-        new BugHunter().reclassify();
+        if (args.length > 0 && args[0].equals("reclassify")) {
+            new BugHunter().reclassify();
+        } else if (args.length > 0 && args[0].equals("collect")) {
+            new BugHunter().collectFailures();
+        } else {
+            throw new Error("unknown bug hunting action: " + Arrays.toString(args));
+        }
     }
 
     public void collectFailures() throws IOException {
-        for (int q = 0; ; q++) {
+        while (true) {
             EuclideanInput input =
-                EuclideanInput.fromPolygon(RandomPolygon.generate_polygon(512));
+                EuclideanInput.fromPolygon(RandomPolygon.generate_polygon(4096));
             try {
                 input.buildVoronoiDiagram();
-                System.out.printf("ok (%d)\n", q);
+                System.out.printf("☺");
+                System.out.flush();
             } catch (Throwable tOrig) {
+                System.out.println();
                 EuclideanInput minimized = minimizeFailure(input);
                 Throwable tMin = null;
                 try {
@@ -56,28 +63,55 @@ public class BugHunter {
             System.err.println("You need assertions turned on for failure reclassifying");
             System.exit(1);
         }
+
+        int fixedFailures = 0;
+        int newFailures = 0;
         Map<String, Throwable> catchedErrors = new HashMap<>();
         for (String f : new File("failures").list()) {
-            Throwable t = null;
             EuclideanInput input = EuclideanInput.readFromText("failures/" + f);
+
+            boolean isOrigFailure = !f.contains("noerror");
+            boolean isInputValid = !isSelfIntersected(input);
+
+            Throwable t = null;
             try {
                 input.buildVoronoiDiagram();
             } catch (Throwable th) {
                 t = th;
             }
+            if (t != null && isInputValid) {
+                catchedErrors.put(getFailureName(t), t);
+            }
+
+            if (isOrigFailure && t == null) {
+                fixedFailures++;
+            } else if (!isOrigFailure && t != null) {
+                newFailures++;
+            }
+
             Matcher m = Pattern.compile("\\d+").matcher(f);
             if (!m.find()) {
                 throw new RuntimeException(String.format("Strange file name: '%s'", f));
             }
             String id = m.group();
-            String sz = sizeEstimate(input);
-            String fn = t == null ? "noerror" : getFailureName(t);
-            if (t != null) {
-                catchedErrors.put(fn, t);
+
+            String failureName;
+            if (!isInputValid) {
+                failureName = "invalid";
+            } else if (t == null) {
+                failureName = "noerror";
+            } else {
+                failureName = getFailureName(t);
             }
-            String newF = String.format("%s-%s-%s.txt", fn, sz, id);
-            System.out.printf("%s => %s\n", f, newF);
-            new File("failures/" + f).renameTo(new File("failures/" + newF));
+            String sz = sizeEstimate(input);
+            String newF = String.format("%s-%s-%s.txt", failureName, sz, id);
+
+            if (!f.equals(newF)) {
+                System.out.printf("%s => %s\n", f, newF);
+                new File("failures/" + f).renameTo(new File("failures/" + newF));
+            } else {
+                System.out.printf("%s =|\n", f);
+            }
         }
         for (String fn : catchedErrors.keySet()) {
             Throwable t = catchedErrors.get(fn);
@@ -94,6 +128,8 @@ public class BugHunter {
                 }
             }
         }
+
+        System.out.printf("fixed %d failures, introduced %d failures\n", fixedFailures, newFailures);
     }
 
     static List<String> bugNames = new ArrayList<>();
@@ -142,6 +178,16 @@ public class BugHunter {
     public static EuclideanInput minimizeFailure(EuclideanInput input) throws IOException {
         System.out.printf("Minimizing input with %d points and %d segments\n",
                           input.points.size(), input.segments.size());
+        Throwable origException = null;
+        try {
+            input.buildVoronoiDiagram();
+        } catch (Throwable e) {
+            origException = e;
+        }
+        if (origException == null) {
+            System.out.println("No exception, nothing to minimize");
+            return input;
+        }
         EuclideanInput current = input;
         int batch = current.points.size() / 2;
         while (true) {
@@ -153,11 +199,10 @@ public class BugHunter {
                 System.out.printf("@%dx%d@", batch, current.points.size() / batch);
                 System.out.flush();
                 for (int offset = 0; offset + batch <= current.segments.size(); offset += batch) {
-                    List<Point2D> pts = new ArrayList<>(current.segments.keySet());
-                    LinkedHashMap<Point2D, Point2D> lessSegments =
-                        new LinkedHashMap<>(current.segments);
+                    List<EuclideanInput.Segment> lessSegments =
+                        new ArrayList<>(current.segments);
                     for (int q = offset; q < offset + batch; q++) {
-                        lessSegments.remove(pts.get(q));
+                        lessSegments.remove(current.segments.get(q));
                     }
                     EuclideanInput modified = new EuclideanInput(current.points, lessSegments);
                     try {
@@ -178,8 +223,15 @@ public class BugHunter {
                     List<Point2D> lessPoints = new ArrayList<>(current.points);
                     int pointsRemoved = 0;
                     for (int q = offset; q < offset + batch; q++) {
-                        if (!current.segments.keySet().contains(current.points.get(q)) &&
-                            !current.segments.values().contains(current.points.get(q))) {
+                        Point2D p = current.points.get(q);
+                        boolean includedInSegment = false;
+                        for (EuclideanInput.Segment s : current.segments) {
+                            if (s.stt.equals(p) || s.end.equals(p)) {
+                                includedInSegment = true;
+                                break;
+                            }
+                        }
+                        if (!includedInSegment) {
                             lessPoints.remove(current.points.get(q));
                             pointsRemoved++;
                         }
@@ -210,6 +262,36 @@ public class BugHunter {
         System.out.printf("\nMinimized input to %d points and %d segments\n",
                           current.points.size(), current.segments.size());
         return current;
+    }
+
+    public static boolean isSelfIntersected(EuclideanInput input) {
+        // check for intersecting segments
+        for (EuclideanInput.Segment s1 : input.segments) {
+            for (EuclideanInput.Segment s2 : input.segments) {
+                if (!s1.equals(s2) && // do not compare segment with itself
+                    // do not count connected segments as intersecting
+                    !s1.stt.equals(s2.end) && !s2.stt.equals(s1.end) && !s1.end.equals(s2.end)
+                    ) {
+                    if (Line2D.linesIntersect(s1.stt.getX(), s1.stt.getY(), s1.end.getX(), s1.end.getY(),
+                                              s2.stt.getX(), s2.stt.getY(), s2.end.getX(), s2.end.getY())) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // check for points lying directly on other segments
+        for (EuclideanInput.Segment s : input.segments) {
+            for (Point2D p : input.points) {
+                if (!p.equals(s.stt) && !p.equals(s.end)) {
+                    if (Line2D.ptSegDist(s.stt.getX(), s.stt.getY(), s.end.getX(), s.end.getY(), p.getX(), p.getY()) < 1e-10) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 
 }

@@ -133,4 +133,9 @@ public class Eq {
                 throw new AssertionError();
         }
     }
+
+    @Override
+    public String toString() {
+        return String.format("Eq(q=%s,a=%s,b=%s,c=%s,k=%s)", q, a, b, c, k);
+    }
 }

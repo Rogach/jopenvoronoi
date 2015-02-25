@@ -1,18 +1,11 @@
 package org.rogach.jopenvoronoi;
 
-import java.awt.geom.Point2D;
-import java.util.PriorityQueue;
-import ags.utils.dataStructures.trees.thirdGenKD.*;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Comparator;
-import java.util.Arrays;
-import org.apache.commons.math3.analysis.solvers.BracketingNthOrderBrentSolver;
+import ags.utils.dataStructures.trees.thirdGenKD.KdTree;
+import ags.utils.dataStructures.trees.thirdGenKD.SquareEuclideanDistanceFunction;
 import org.apache.commons.math3.analysis.solvers.AllowedSolution;
+import org.apache.commons.math3.analysis.solvers.BracketingNthOrderBrentSolver;
+
+import java.util.*;
 
 /// \brief Voronoi diagram.
 ///
@@ -20,7 +13,7 @@ import org.apache.commons.math3.analysis.solvers.AllowedSolution;
 ///
 /// the dual of a voronoi diagram is the delaunay diagram(triangulation).
 ///  voronoi-faces are dual to delaunay-vertices.
-///  vornoi-vertices are dual to delaunay-faces
+///  voronoi-vertices are dual to delaunay-faces
 ///  voronoi-edges are dual to delaunay-edges
 public class VoronoiDiagram {
 
@@ -258,12 +251,12 @@ public class VoronoiDiagram {
         SeparatorTarget neg_start_target = find_separator_target(start.face, neg_sep_start);
 
         // add positive separator edge at start
-        add_separator( start.face , start_null_face, pos_start_target, pos_sep_start, pos_face.site , neg_face.site );
+        add_separator(start.face, start_null_face, pos_start_target, pos_sep_start, pos_face.site , neg_face.site );
 
         if (step==current_step) return false; current_step++;
 
         // add negative separator edge at start
-        add_separator( start.face , start_null_face, neg_start_target, neg_sep_start, pos_face.site , neg_face.site );
+        add_separator(start.face, start_null_face, neg_start_target, neg_sep_start, pos_face.site , neg_face.site );
         start.face.status = FaceStatus.NONINCIDENT; // face is now done.
         assert( vd_checker.face_ok( start.face ) ) : " vd_checker.face_ok( start.face ) ";
 
@@ -763,10 +756,13 @@ public class VoronoiDiagram {
             Edge start = current;
             do {
                 Vertex w = current.target;
-                if ( !w.equals(v) && w.status == VertexStatus.IN && g.has_edge(w,v) )  // v should be adjacent to an IN vertex on the face
+                if ( !w.equals(v) && w.status == VertexStatus.IN && g.has_edge(w,v) ) { // v should be adjacent to an IN vertex on the face
                     face_ok = true;
-                else if ( !w.equals(v) && ( w.type == VertexType.ENDPOINT || w.type == VertexType.APEX  || w.type == VertexType.SPLIT) ) // if we are next to an ENDPOINT, then ok(?)
-                    face_ok=true;
+                } else if ( !w.equals(v) && ( w.type == VertexType.ENDPOINT || w.type == VertexType.APEX  || w.type == VertexType.SPLIT) ) {// if we are next to an ENDPOINT, then ok(?)
+                    face_ok = true;
+                } else if (!w.equals(v) && w.type == VertexType.SEPPOINT && g.has_edge(w, v)) {
+                    face_ok = true;
+                }
                 current = current.next;
             } while(!current.equals(start));
 
@@ -832,9 +828,9 @@ public class VoronoiDiagram {
         for (Edge e : v.out_edges) {
             Vertex w = e.target;
             if ( (w.status == VertexStatus.UNDECIDED) && (!w.in_queue) ) {
-                    // when pushing onto queue we also evaluate in_circle predicate so that we process vertices in the correct order
+                // when pushing onto queue we also evaluate in_circle predicate so that we process vertices in the correct order
                 vertexQueue.add(new Pair<Vertex, Double>(w, w.in_circle(site.apex_point(w.position)) ) );
-                    w.in_queue=true;
+                w.in_queue=true;
             }
         }
     }
@@ -1105,11 +1101,9 @@ public class VoronoiDiagram {
         boolean    out_new_in = target.out_new_in;
         assert( (v_target.k3==1) || (v_target.k3==-1) ) : " (v_target.k3==1) || (v_target.k3==-1) ";
         assert( sep_endp.k3 == v_target.k3 ) : " sep_endp.k3 == v_target.k3 ";
-        if (!s1.in_region(v_target.position) || !s2.in_region(v_target.position)) {
-            throw new RuntimeException("not in region");
-        }
-        assert( s1.in_region(v_target.position ) ) : " s1.in_region(v_target.position ) ";
-        assert( s2.in_region(v_target.position ) ) : " s2.in_region(v_target.position ) ";
+        // can't assert about in_region - numerical error is always present
+        // assert( s1.in_region(v_target.position ) ) : " s1.in_region(v_target.position ) ";
+        // assert( s2.in_region(v_target.position ) ) : " s2.in_region(v_target.position ) ";
 
         // add new separator edge, and its twin
         Pair<Edge, Edge> twin_edges = g.add_twin_edges( sep_endp, v_target );
@@ -1601,6 +1595,7 @@ public class VoronoiDiagram {
                                  Pair<Face,Face> null_face ) {
         Edge current_edge = f.edge;
         Edge start_edge = current_edge;
+        int c = 0;
         do {
             assert( vd_checker.check_edge(current_edge) ) : " vd_checker.check_edge(current_edge) ";
             Vertex current_target = current_edge.target; // an edge on the new face
@@ -1650,6 +1645,10 @@ public class VoronoiDiagram {
                 }
             }
             current_edge = current_edge.next; // jump to the next edge
+            c++;
+            if (c > 30000) {
+                throw new AssertionError("c < 30000");
+            }
         } while (!current_edge.equals(start_edge));
     }
 
@@ -1711,5 +1710,18 @@ public class VoronoiDiagram {
             current = current.next;
         } while(!current.equals(start));
         return count;
+    }
+
+    public void outputToSvg(String fname) {
+        SvgOutput.output(this, fname);
+    }
+
+    public void outputToSvg(String fname, double cx, double cy, double scale, double width) {
+        SvgOutput s = new SvgOutput(this);
+        s.CX = cx;
+        s.CY = cy;
+        s.SCALE = scale;
+        s.WIDTH = width;
+        s.writeTo(fname);
     }
 }

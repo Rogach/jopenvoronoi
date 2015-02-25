@@ -11,12 +11,17 @@ public class Face {
         StringBuilder sb = new StringBuilder();
         sb.append("F(");
         Edge current = edge;
+        int c = 100;
         do {
             if (current == null) break;
             sb.append(current.source.position);
             sb.append(">");
             current = current.next;
-        } while (current != edge);
+            c++;
+        } while (current != edge && c < 100);
+        if (c >= 100) {
+            sb.append("...");
+        }
         sb.append(")");
         return sb.toString();
     }

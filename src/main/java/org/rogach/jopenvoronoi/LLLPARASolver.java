@@ -57,16 +57,8 @@ public class LLLPARASolver extends Solver {
 
         Pair<Double, Double> xy = two_by_two_solver(bisector.a, bisector.b, s3.a(), s3.b(), -bisector.c, -s3.c()-k3*tb);
         if (xy != null) {
-            Point psln = new Point(xy.getFirst(), xy.getSecond());
-            if (s1.end().sub(s1.start()).cross(psln.sub(s1.start())) * k1 < 0 ||
-                s2.end().sub(s2.start()).cross(psln.sub(s2.start())) * k2 < 0 ||
-                s3.end().sub(s3.start()).cross(psln.sub(s3.start())) * k3 < 0) {
-                // solution lies on the wrong side from one of the lines
-                return 0;
-            } else {
-                slns.add(new Solution(psln, tb, k3));
-                return 1;
-            }
+            slns.add(new Solution(new Point(xy.getFirst(), xy.getSecond()), tb, k3));
+            return 1;
         } else {
             return 0;
         }

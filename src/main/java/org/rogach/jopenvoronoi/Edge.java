@@ -173,7 +173,6 @@ public class Edge {
         double dx = p.x - endp.x;
         double dy = p.y - endp.y;
         double d = p.sub(endp).norm();
-        assert( d > 0 ) : " d > 0 ";
         x[0]=endp.x;
         x[2]=-dx/d; // negative of normalized direction from endp to p
         y[0]=endp.y;
@@ -248,7 +247,7 @@ public class Edge {
 
         // (numerically) parallel line segments - the generic LLL solver
         // is numerically unstable for parallel cases
-        if (Math.abs(delta) <= 1e-300)
+        if (Math.abs(delta) <= 1e-14)
             {
                 set_ll_para_parameters(s1,s2);
                 return;

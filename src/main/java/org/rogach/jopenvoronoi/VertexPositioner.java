@@ -8,53 +8,15 @@ import org.apache.commons.math3.optim.univariate.*;
 
 /// Calculates the (x,y) position of a VoronoiVertex in the VoronoiDiagram
 public class VertexPositioner {
-    /// predicate for rejecting out-of-region solutions
-    class in_region_filter {
-        /// the Site
-        Site site_;
-        /// \param s Site for in_region check
-        public in_region_filter(Site s) {
-            this.site_ = s;
-        }
-        /// is Solution \a s in_region of Site \a site_ ?
-        public boolean apply(Solution s) {
-            return !site_.in_region(s.p);
-        }
-    }
 
-    /// predicate for filtering solutions based on t-value in [tmin,tmax] range
-    class t_filter {
-        /// minimum offset-distance value
-        double tmin_;
-        /// maximum offset-distance value
-        double tmax_;
-
-        /// create filter for [tmin,tmax]
-        public t_filter(double tmin, double tmax) {
-            this.tmin_ = tmin;
-            this.tmax_ = tmax;
-        }
-
-        /// is the given Solution \a s in the offset-distance interval [tmin,tmax] ?
-        public boolean apply(Solution s) {
-            double eps=1e-9;
-            double tround=s.t;
-            if ( Math.abs(s.t-tmin_) < eps )
-                tround=tmin_;
-            else if (Math.abs(s.t-tmax_)<eps)
-                tround=tmax_;
-            return (tround<tmin_) || (tround>tmax_); // these points rejected!
-        }
-    };
-
-// solvers, to which we dispatch, depending on the input sites
-
+    // solvers, to which we dispatch, depending on the input sites
     Solver ppp_solver; ///< point-point-point solver
     Solver lll_solver; ///< line-line-line solver
     Solver lll_para_solver; ///< solver
     Solver qll_solver; ///< solver
     Solver sep_solver; ///< separator solver
     Solver alt_sep_solver; ///< alternative separator solver
+
 // DATA
     HalfEdgeDiagram g;  ///< reference to the VD graph.
     double t_min; ///< minimum offset-distance
@@ -119,37 +81,93 @@ public class VertexPositioner {
     Solution position(Site s1, double k1, Site s2, double k2, Site s3) {
         assert( (k1==1) || (k1 == -1) ) : " (k1==1) || (k1 == -1) ";
         assert( (k2==1) || (k2 == -1) ) : " (k2==1) || (k2 == -1) ";
-        List<Solution> solutions = new ArrayList<>();
 
-        solver_dispatch(s1,k1,s2,k2,s3,+1, solutions); // a single k3=+1 call for s3->isPoint()
-
-        if (!s3.isPoint())
-            solver_dispatch(s1,k1,s2,k2,s3,-1, solutions); // for lineSite or ArcSite we try k3=-1 also
-
-        if ( solutions.size() == 1 && (t_min<=solutions.get(0).t) && (t_max>=solutions.get(0).t) && (s3.in_region( solutions.get(0).p)) )
-            return solutions.get(0);
-
-        // choose only in_region() solutions
-        List<Solution> rejected_solutions = new ArrayList<>();
-        for (Solution s : solutions) {
-            if (!s3.in_region(s.p)) {
-                rejected_solutions.add(s);
-            } else if (new t_filter(t_min, t_max).apply(s)) {
-                rejected_solutions.add(s);
+        if (s3.isLine()) {
+            // special handling for the case when site and edge endpoints share a common point -
+            // simply select one of the edge endpoints as solution
+            Point e_src = edge.source.position;
+            if (
+                    ((s1.isPoint() && s1.position().equals(e_src)) || (s1.isLine() && (s1.start().equals(e_src) || s1.end().equals(e_src)))) &&
+                    ((s2.isPoint() && s2.position().equals(e_src)) || (s2.isLine() && (s2.start().equals(e_src) || s2.end().equals(e_src)))) &&
+                    ((s3.isPoint() && s3.position().equals(e_src)) || (s3.isLine() && (s3.start().equals(e_src) || s3.end().equals(e_src))))) {
+                Point src_se = s3.start();
+                Point trg_se = s3.end();
+                double k;
+                if (edge.target.position.is_right(src_se,trg_se)) {
+                    k = (s3.k()==1) ? -1 : 1;
+                } else {
+                    k = (s3.k()==1) ? 1 : -1;
+                }
+                return new Solution(edge.source.position, edge.source.dist(), k);
+            }
+            Point e_trg = edge.target.position;
+            if (
+                    ((s1.isPoint() && s1.position().equals(e_trg)) || (s1.isLine() && (s1.start().equals(e_trg) || s1.end().equals(e_trg)))) &&
+                            ((s2.isPoint() && s2.position().equals(e_trg)) || (s2.isLine() && (s2.start().equals(e_trg) || s2.end().equals(e_trg)))) &&
+                            ((s3.isPoint() && s3.position().equals(e_trg)) || (s3.isLine() && (s3.start().equals(e_trg) || s3.end().equals(e_trg))))) {
+                Point src_se = s3.start();
+                Point trg_se = s3.end();
+                double k;
+                if (edge.source.position.is_right(src_se,trg_se)) {
+                    k = (s3.k()==1) ? -1 : 1;
+                } else {
+                    k = (s3.k()==1) ? 1 : -1;
+                }
+                return new Solution(edge.target.position, edge.target.dist(), k);
             }
         }
-        solutions.removeAll(rejected_solutions);
 
-        if ( solutions.size() == 1) // if only one solution is found, return that.
+        List<Solution> solutions = new ArrayList<>();
+
+        if (s3.isLine() &&
+                ((s1.isPoint() && s2.isLine() && (s3.start().equals(s1.position()) || s3.end().equals(s1.position()))) ||
+                 (s2.isPoint() && s1.isLine() && (s3.start().equals(s2.position()) || s3.end().equals(s2.position()))))) {
+            Site ptsite = s1.isPoint() ? s1 : s2;
+            Edge ed = edge;
+            if (ed.face.site != ptsite) {
+                ed = edge.twin;
+            }
+            assert(ed.source.status == VertexStatus.IN || ed.target.status == VertexStatus.IN) : "edge to be split has no IN vertex";
+
+            double k;
+            if (ed.source.status == VertexStatus.IN) {
+                k = -1;
+            } else {
+                k = +1;
+            }
+            if (s3.start().equals(ptsite.position())) {
+                k = -k;
+            }
+            solver_dispatch(s1, k1, s2, k2, s3, k, solutions);
+        } else {
+            solver_dispatch(s1, k1, s2, k2, s3, +1, solutions); // a single k3=+1 call for s3->isPoint()
+
+            if (!s3.isPoint()) {
+                solver_dispatch(s1, k1, s2, k2, s3, -1, solutions); // for lineSite or ArcSite we try k3=-1 also
+            }
+        }
+
+        if ( solutions.size() == 1 && (t_min<=solutions.get(0).t) && (t_max>=solutions.get(0).t) && (s3.in_region( solutions.get(0).p)) ) {
             return solutions.get(0);
-        else if (solutions.size()>1) {
+        }
+
+        // choose only in_region() solutions
+        List<Solution> acceptable_solutions = new ArrayList<>();
+        for (Solution s : solutions) {
+            if (s3.in_region(s.p) && s.t >= t_min && s.t <= t_max) {
+                acceptable_solutions.add(s);
+            }
+        }
+
+        if ( acceptable_solutions.size() == 1) { // if only one solution is found, return that.
+            return acceptable_solutions.get(0);
+        } else if (acceptable_solutions.size()>1) {
             // two or more points remain so we must further filter here!
             // filter further using edge_error
             double min_error=100;
             Solution min_solution = new Solution(new Point(0,0),0,0);
-            //std::cout << " edge_error filter: \n";
-            for (Solution s : solutions) {
-                double err = edge_error(s); //g[edge].error(s);
+            for (Solution s : acceptable_solutions) {
+                double err = edge_error(s);
                 if ( err < min_error) {
                     min_solution = s;
                     min_error = err;
@@ -158,10 +176,53 @@ public class VertexPositioner {
             return min_solution;
         }
 
+        if (solutions.isEmpty()) {
+            return desperate_solution(s3);
+        } else {
+            // choose solution that is best by dist_error
+            Solution leastBad = solutions.get(0);
+            double leastErr = Double.MAX_VALUE;
+            for (Solution s : solutions) {
+                // punish wrong solutions
+                double derr = dist_error(edge, s, s3);
+                // punish solutions outside t range
+                double terr = Math.max(0, Math.max((s.t - t_max), (t_min - s.t)));
+                if (edge.type == EdgeType.PARA_LINELINE) {
+                    Point s_p = s.p.sub(edge.source.position);
+                    Point s_e = edge.target.position.sub(edge.source.position);
+                    double dist = s_p.dot(s_e) / s_e.dot(s_e);
+                    terr = Math.max(0, Math.max(dist - 1, -dist));
+                }
+                double err = derr + terr;
+                if (err < leastErr) {
+                    leastBad = s;
+                    leastErr = err;
+                }
+            }
 
-        // either 0, or >= 2 solutions found. This is an error.
-        //throw new RuntimeException("None, or too many solutions found!");
-        return desperate_solution(s3);
+            if (edge.type == EdgeType.PARA_LINELINE) {
+                return leastBad;
+            }
+
+            // determine clamp direction
+            double t = Math.max(t_min, Math.min(t_max, leastBad.t));
+            Point p_sln = edge.point(t);
+
+            // find out on which side the solution lies
+            double desp_k3 = 0;
+            if (s3.isPoint())
+                desp_k3 = 1;
+            else if ( s3.isLine() ) {
+                Point src_se = s3.start();
+                Point trg_se = s3.end();
+                if (p_sln.is_right(src_se,trg_se)) {
+                    desp_k3 = (s3.k()==1) ? -1 : 1;
+                } else {
+                    desp_k3 = (s3.k()==1) ? 1 : -1;
+                }
+            }
+            return new Solution(p_sln, t, desp_k3);
+        }
     }
 
     /// search numerically for a desperate solution along the solution-edge
@@ -185,7 +246,6 @@ public class VertexPositioner {
             // find out on which side the desperate solution lies
             Point src_se = s3.start();
             Point trg_se = s3.end();
-            Point left = src_se.add(trg_se).mult(0.5).add(trg_se.sub(src_se).xy_perp());
             if (p_sln.is_right(src_se,trg_se)) {
                 desp_k3 = (s3.k()==1) ? -1 : 1;
             } else {
@@ -424,4 +484,4 @@ public class VertexPositioner {
         return true;
     }
 
-};
+}
