@@ -235,4 +235,32 @@ public class RunTest {
 
         vd.check();
     }
+
+    @Test
+    public void gosperCurve1() {
+        EuclideanInput input = LindenmayerCurve.generateGosperCurve(1);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
+
+    @Test
+    public void gosperCurve2() {
+        EuclideanInput input = LindenmayerCurve.generateGosperCurve(2);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
+
+    @Test
+    public void gosperCurve3() {
+        EuclideanInput input = LindenmayerCurve.generateGosperCurve(3);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
+
+    @Test
+    public void gosperCurve4() {
+        EuclideanInput input = LindenmayerCurve.generateGosperCurve(4);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
 }
