@@ -187,4 +187,32 @@ public class RunTest {
 
         vd.check();
     }
+
+    @Test
+    public void mooreCurve1() {
+        EuclideanInput input = LindenmayerCurve.generateMooreCurve(1);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
+
+    @Test
+    public void mooreCurve2() {
+        EuclideanInput input = LindenmayerCurve.generateMooreCurve(2);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
+
+    @Test
+    public void mooreCurve3() {
+        EuclideanInput input = LindenmayerCurve.generateMooreCurve(3);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
+
+    @Test
+    public void mooreCurve4() {
+        EuclideanInput input = LindenmayerCurve.generateMooreCurve(4);
+        VoronoiDiagram vd = input.buildVoronoiDiagram();
+        vd.check();
+    }
 }

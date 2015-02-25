@@ -1,5 +1,6 @@
 package org.rogach.jopenvoronoi;
 
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,20 @@ public class LindenmayerCurve {
             length = 1.4;
         }
         return generateCurve(produce(axiom, rules, k-1), Math.PI / 2, new Point2D.Double(0 - length/2, 0.7), length);
+    }
+
+    public static EuclideanInput generateGosperCurve(int k) {
+        String axiom = "A";
+        Map<Character, String> rules = new HashMap<>();
+        rules.put('A', "A-B--B+A++AA+B-");
+        rules.put('B', "+A-BB--B-A++A+B");
+        double length;
+        if (k > 3) {
+            length = 1.4 * (2.4 / Math.pow(Math.sqrt(7), k));
+        } else {
+            length = 0.15;
+        }
+        return generateCurve(produce(axiom, rules, k-1), Math.PI / 3, new Point2D.Double(0.7, 0), length);
     }
 
     private static String produce(String input, Map<Character, String> rules, int k) {
@@ -48,22 +63,31 @@ public class LindenmayerCurve {
     private static EuclideanInput generateCurve(String curve, double da, Point2D start, double length) {
         List<Point2D> points = new ArrayList<>();
         List<EuclideanInput.Segment> segments = new ArrayList<>();
-        Point2D p = start;
+        Point2D p1 = start;
+        Point2D p2 = p1;
         double angle = -Math.PI / 2;
-        points.add(p);
+        points.add(p1);
         for (int q = 0; q < curve.length(); q++) {
             char c = curve.charAt(q);
-            if (c == 'F') {
-                Point2D next = new Point2D.Double(p.getX() + Math.cos(angle) * length, p.getY() + Math.sin(angle) * length);
-                points.add(next);
-                segments.add(new EuclideanInput.Segment(p, next));
-                p = next;
+            if (c == 'F' || c == 'A' || c == 'B') {
+                Point2D next = new Point2D.Double(p2.getX() + Math.cos(angle) * length, p2.getY() + Math.sin(angle) * length);
+                Line2D l = new Line2D.Double(p1, p2);
+                if (l.ptLineDist(next) < 1e-7 || p1.equals(p2)) {
+                    p2 = next;
+                } else {
+                    points.add(p2);
+                    segments.add(new EuclideanInput.Segment(p1, p2));
+                    p1 = p2;
+                    p2 = next;
+                }
             } else if (c == '-') {
-                angle -= Math.PI / 2;
+                angle -= da;
             } else if (c == '+') {
-                angle += Math.PI / 2;
+                angle += da;
             }
         }
+        points.add(p2);
+        segments.add(new EuclideanInput.Segment(p1, p2));
         return new EuclideanInput(points, segments);
     }
 }
