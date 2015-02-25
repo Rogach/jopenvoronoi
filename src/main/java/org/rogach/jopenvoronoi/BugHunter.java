@@ -199,11 +199,10 @@ public class BugHunter {
                 System.out.printf("@%dx%d@", batch, current.points.size() / batch);
                 System.out.flush();
                 for (int offset = 0; offset + batch <= current.segments.size(); offset += batch) {
-                    List<Point2D> pts = new ArrayList<>(current.segments.keySet());
-                    LinkedHashMap<Point2D, Point2D> lessSegments =
-                        new LinkedHashMap<>(current.segments);
+                    List<EuclideanInput.Segment> lessSegments =
+                        new ArrayList<>(current.segments);
                     for (int q = offset; q < offset + batch; q++) {
-                        lessSegments.remove(pts.get(q));
+                        lessSegments.remove(current.segments.get(q));
                     }
                     EuclideanInput modified = new EuclideanInput(current.points, lessSegments);
                     try {
@@ -224,8 +223,15 @@ public class BugHunter {
                     List<Point2D> lessPoints = new ArrayList<>(current.points);
                     int pointsRemoved = 0;
                     for (int q = offset; q < offset + batch; q++) {
-                        if (!current.segments.keySet().contains(current.points.get(q)) &&
-                            !current.segments.values().contains(current.points.get(q))) {
+                        Point2D p = current.points.get(q);
+                        boolean includedInSegment = false;
+                        for (EuclideanInput.Segment s : current.segments) {
+                            if (s.stt.equals(p) || s.end.equals(p)) {
+                                includedInSegment = true;
+                                break;
+                            }
+                        }
+                        if (!includedInSegment) {
                             lessPoints.remove(current.points.get(q));
                             pointsRemoved++;
                         }
@@ -260,16 +266,14 @@ public class BugHunter {
 
     public static boolean isSelfIntersected(EuclideanInput input) {
         // check for intersecting segments
-        for (Point2D src1 : input.segments.keySet()) {
-            for (Point2D src2 : input.segments.keySet()) {
-                Point2D trg1 = input.segments.get(src1);
-                Point2D trg2 = input.segments.get(src2);
-                if (!src1.equals(src2) && // do not compare segment with itself
+        for (EuclideanInput.Segment s1 : input.segments) {
+            for (EuclideanInput.Segment s2 : input.segments) {
+                if (!s1.equals(s2) && // do not compare segment with itself
                     // do not count connected segments as intersecting
-                    !src1.equals(trg2) && !src2.equals(trg1) && !trg1.equals(trg2)
+                    !s1.stt.equals(s2.end) && !s2.stt.equals(s1.end) && !s1.end.equals(s2.end)
                     ) {
-                    if (Line2D.linesIntersect(src1.getX(), src1.getY(), trg1.getX(), trg1.getY(),
-                                              src2.getX(), src2.getY(), trg2.getX(), trg2.getY())) {
+                    if (Line2D.linesIntersect(s1.stt.getX(), s1.stt.getY(), s1.end.getX(), s1.end.getY(),
+                                              s2.stt.getX(), s2.stt.getY(), s2.end.getX(), s2.end.getY())) {
                         return true;
                     }
                 }
@@ -277,11 +281,10 @@ public class BugHunter {
         }
 
         // check for points lying directly on other segments
-        for (Point2D src : input.segments.keySet()) {
-            Point2D trg = input.segments.get(src);
+        for (EuclideanInput.Segment s : input.segments) {
             for (Point2D p : input.points) {
-                if (!p.equals(src) && !p.equals(trg)) {
-                    if (Line2D.ptSegDist(src.getX(), src.getY(), trg.getX(), trg.getY(), p.getX(), p.getY()) < 1e-10) {
+                if (!p.equals(s.stt) && !p.equals(s.end)) {
+                    if (Line2D.ptSegDist(s.stt.getX(), s.stt.getY(), s.end.getX(), s.end.getY(), p.getX(), p.getY()) < 1e-10) {
                         return true;
                     }
                 }
