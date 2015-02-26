@@ -1,10 +1,24 @@
 package org.rogach.jopenvoronoi;
 
-import java.io.*;
-import java.util.*;
 import java.awt.geom.Point2D;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class EuclideanInput {
+
+    public List<Point2D> points;
+    public List<Segment> segments;
+
+    public EuclideanInput(List<Point2D> points, List<Segment>segments) {
+        this.points = points;
+        this.segments = segments;
+    }
+
     public static class Segment {
         public Point2D stt;
         public Point2D end;
@@ -13,14 +27,26 @@ public class EuclideanInput {
             this.end = end;
             this.stt = stt;
         }
-    }
 
-    public List<Point2D> points;
-    public List<Segment> segments;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
 
-    public EuclideanInput(List<Point2D> points, List<Segment>segments) {
-        this.points = points;
-        this.segments = segments;
+            Segment segment = (Segment) o;
+
+            if (end != null ? !end.equals(segment.end) : segment.end != null) return false;
+            if (stt != null ? !stt.equals(segment.stt) : segment.stt != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = stt != null ? stt.hashCode() : 0;
+            result = 31 * result + (end != null ? end.hashCode() : 0);
+            return result;
+        }
     }
 
     public static EuclideanInput fromPolygon(List<Point2D> points) {
@@ -70,20 +96,50 @@ public class EuclideanInput {
     public void writeToText(String fname) throws IOException {
         File f = new File(fname);
         f.getAbsoluteFile().getParentFile().mkdirs();
-        PrintWriter w = new PrintWriter(f);
+        try (PrintWriter w = new PrintWriter(f)) {
+            write(w);
+        }
+    }
+
+    public void writeToGZip(String fname) throws IOException {
+        File f = new File(fname);
+        f.getAbsoluteFile().getParentFile().mkdirs();
+        try (OutputStream os = new FileOutputStream(f);
+             GZIPOutputStream gzos = new GZIPOutputStream(os);
+             PrintWriter w = new PrintWriter(gzos)
+        ) {
+            write(w);
+        }
+    }
+
+    public void write(PrintWriter w) throws IOException {
         for (Point2D p : points) {
             w.printf("%s,%s\n", p.getX(), p.getY());
         }
         for (Segment s : segments) {
             w.printf("%s,%s->%s,%s\n", s.stt.getX(), s.stt.getY(), s.end.getX(), s.end.getY());
         }
-        w.close();
     }
 
     public static EuclideanInput readFromText(String fname) throws IOException {
+        try (FileReader r = new FileReader(fname);
+             BufferedReader br = new BufferedReader(r)) {
+            return read(br);
+        }
+    }
+
+    public static EuclideanInput readFromGZip(String fname) throws IOException {
+        try (FileInputStream fis = new FileInputStream(fname);
+             GZIPInputStream gzis = new GZIPInputStream(fis);
+             InputStreamReader r = new InputStreamReader(gzis);
+             BufferedReader br = new BufferedReader(r)) {
+            return read(br);
+        }
+    }
+
+    public static EuclideanInput read(BufferedReader r) throws IOException {
         List<Point2D> points = new ArrayList<>();
         List<Segment> segments = new ArrayList<>();
-        BufferedReader r = new BufferedReader(new FileReader(fname));
         String l;
         while ((l = r.readLine()) != null) {
             String[] p = l.split(",|->");
@@ -95,8 +151,26 @@ public class EuclideanInput {
                 points.add(new Point2D.Double(Double.valueOf(p[0]), Double.valueOf(p[1])));
             }
         }
-        r.close();
         return new EuclideanInput(points, segments);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EuclideanInput that = (EuclideanInput) o;
+
+        if (points != null ? !points.equals(that.points) : that.points != null) return false;
+        if (segments != null ? !segments.equals(that.segments) : that.segments != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = points != null ? points.hashCode() : 0;
+        result = 31 * result + (segments != null ? segments.hashCode() : 0);
+        return result;
+    }
 }
