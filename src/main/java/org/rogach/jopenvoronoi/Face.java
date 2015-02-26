@@ -11,7 +11,7 @@ public class Face {
         StringBuilder sb = new StringBuilder();
         sb.append("F(");
         Edge current = edge;
-        int c = 100;
+        int c = 0;
         do {
             if (current == null) break;
             sb.append(current.source.position);

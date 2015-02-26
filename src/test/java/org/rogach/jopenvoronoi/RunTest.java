@@ -263,4 +263,17 @@ public class RunTest {
         VoronoiDiagram vd = input.buildVoronoiDiagram();
         vd.check();
     }
+
+    @Test
+    public void parallelConsecutiveEdges() {
+        VoronoiDiagram vd = new VoronoiDiagram();
+
+        Vertex v1 = vd.insert_point_site(new Point(0,0));
+        Vertex v2 = vd.insert_point_site(new Point(-0.5,0));
+        Vertex v3 = vd.insert_point_site(new Point(0.5,0));
+        vd.insert_line_site(v1, v2);
+        vd.insert_line_site(v1, v3);
+
+        vd.check();
+    }
 }

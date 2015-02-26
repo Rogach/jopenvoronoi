@@ -887,10 +887,6 @@ public class VoronoiDiagram {
         }
     }
 
-    protected void add_edge(EdgeData ed, Face new1) {
-        add_edge(ed, new1, null);
-    }
-
     /// \brief add a new edge to the diagram
     // newface = the k=+1 positive offset face
     // newface2 = the k=-1 negative offset face
@@ -1502,38 +1498,6 @@ public class VoronoiDiagram {
                 }
 
             } // predicates now set.
-
-            // parallel line-segments case
-            if ( parallel_pred && adj.type == VertexType.SEPPOINT ) {
-                // assign face of separator-edge
-                // mark separator target NEW
-                Edge sep_edge= null;
-                for (Edge e : adj.out_edges) {
-                    assert( e.source == adj ) : " e.source == adj ";
-                    if ( e.type == EdgeType.SEPARATOR )
-                        sep_edge = e;
-                }
-                assert(sep_edge != null) : "sep_edge != null";
-                Edge sep_twin = sep_edge.twin;
-                Face sep_face = sep_edge.face;
-                Site sep_site = sep_face.site;
-                Face sep_twin_face = sep_twin.face;
-                Site sep_twin_site = sep_twin_face.site;
-                Edge pointsite_edge = null;
-                if (sep_site.isPoint() ) {
-                    pointsite_edge = sep_edge;
-                }  else if (sep_twin_site.isPoint() ) {
-                    pointsite_edge = sep_twin;
-                }
-
-                // set the separator target to NEW
-                Vertex sep_target = sep_edge.target;
-                sep_target.status = VertexStatus.NEW;
-                sep_target.k3 = new_k3;
-                modified_vertices.add(sep_target);
-
-                return new Pair<Vertex, Face>(null, pointsite_edge.face ); // no new separator-point returned
-            }
 
             Vertex adj_out = null_vertex_target(adj);
             assert(adj_out != null) : "adj_out != null";
