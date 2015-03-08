@@ -3,89 +3,55 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.rogach</groupId>
   <artifactId>jopenvoronoi</artifactId>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>jopenvoronoi</name>
   <url>https://github.com/Rogach/jopenvoronoi</url>
+  <modules>
+    <module>jopenvoronoi-main</module>
+    <module>jopenvoronoi-test</module>
+  </modules>
+
   <properties>
     <main>Main</main>
-    <aspectj.version>1.8.5</aspectj.version>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>3.4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>${aspectj.version}</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.2</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>aspectj-maven-plugin</artifactId>
-        <version>1.7</version>
-        <configuration>
-          <complianceLevel>1.7</complianceLevel>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>test-compile</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>${aspectj.version}</version>
-          </dependency>
-          <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjtools</artifactId>
-            <version>${aspectj.version}</version>
-          </dependency>
-        </dependencies>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.3.2</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>java</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <mainClass>org.rogach.jopenvoronoi.${main}</mainClass>
-        </configuration>
-      </plugin>
-    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.3.2</version>
+          <executions>
+            <execution>
+              <phase>verify</phase>
+              <goals>
+                <goal>java</goal>
+              </goals>
+            </execution>
+          </executions>
+          <configuration>
+            <mainClass>org.rogach.jopenvoronoi.${main}</mainClass>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
+  <profiles>
+    <profile>
+      <id>dumb-run</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.18.1</version>
+            <configuration>
+              <skipTests>true</skipTests>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

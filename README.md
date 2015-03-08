@@ -12,15 +12,18 @@ Building
 Currently the project is built using Maven, but since it's just a bunch
 of java files and a single jar dependency, you can quickly build it with whatever is at hand.
 
+Source files are located in `jopenvoronoi-main/src` directory, jar dependency - `lib/commons-math3-3.4.1.jar`.
+
 You can build a jar of the project with:
 ```
+cd jopenjoronoi-main
 mvn package
 ```
 
 and run benchmarks:
 ```
-mvn compile exec:java -Dmain=BenchmarkRandomPoints
-mvn compile exec:java -Dmain=BenchmarkRandomPolygon
+./run.sh BenchmarkRandomPoints
+./run.sh BenchmarkRandomPolygon
 ```
 
 Example code
