@@ -54,7 +54,7 @@ public class Offset {
         Edge current_edge = start_edge;
         OffsetLoop loop = new OffsetLoop(); // store the output in this loop
         loop.offset_distance = t;
-        loop.add(new OffsetVertex(current_edge.point(t)));
+        loop.add(new OffsetVertex(current_edge.point(t), current_edge));
         do {
             out_in_mode = edge_mode(current_edge, t);
             // find the next edge
@@ -77,7 +77,7 @@ public class Offset {
             cw = find_cw(o.start(), o.center(), o.end() ); // figure out cw or ccw arcs?
         }
         // add offset to output
-        return new OffsetVertex(next_edge.point(t), o.radius(), o.center(), cw, current_face);
+        return new OffsetVertex(next_edge.point(t), o.radius(), o.center(), cw, current_face, next_edge);
     }
 
     /// \brief figure out mode (?)
