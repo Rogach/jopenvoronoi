@@ -11,7 +11,7 @@ import java.util.Map;
  * Generates space-filling curves using Lindenmayer systems
  */
 public class LindenmayerCurve {
-    public static EuclideanInput generateMooreCurve(int k) {
+    public static PlanarGraph generateMooreCurve(int k) {
         String axiom = "LFL+F+LFL";
         Map<Character, String> rules = new HashMap<>();
         rules.put('L', "-RF+LFL+FR-");
@@ -25,7 +25,7 @@ public class LindenmayerCurve {
         return generateCurve(produce(axiom, rules, k-1), Math.PI / 2, new Point2D.Double(0 - length/2, 0.7), length);
     }
 
-    public static EuclideanInput generateGosperCurve(int k) {
+    public static PlanarGraph generateGosperCurve(int k) {
         String axiom = "A";
         Map<Character, String> rules = new HashMap<>();
         rules.put('A', "A-B--B+A++AA+B-");
@@ -60,9 +60,9 @@ public class LindenmayerCurve {
         return sb.toString();
     }
 
-    private static EuclideanInput generateCurve(String curve, double da, Point2D start, double length) {
+    private static PlanarGraph generateCurve(String curve, double da, Point2D start, double length) {
         List<Point2D> points = new ArrayList<>();
-        List<EuclideanInput.Segment> segments = new ArrayList<>();
+        List<PlanarGraph.Segment> segments = new ArrayList<>();
         Point2D p1 = start;
         Point2D p2 = p1;
         double angle = -Math.PI / 2;
@@ -76,7 +76,7 @@ public class LindenmayerCurve {
                     p2 = next;
                 } else {
                     points.add(p2);
-                    segments.add(new EuclideanInput.Segment(p1, p2));
+                    segments.add(new PlanarGraph.Segment(p1, p2));
                     p1 = p2;
                     p2 = next;
                 }
@@ -87,7 +87,7 @@ public class LindenmayerCurve {
             }
         }
         points.add(p2);
-        segments.add(new EuclideanInput.Segment(p1, p2));
-        return new EuclideanInput(points, segments);
+        segments.add(new PlanarGraph.Segment(p1, p2));
+        return new PlanarGraph(points, segments);
     }
 }

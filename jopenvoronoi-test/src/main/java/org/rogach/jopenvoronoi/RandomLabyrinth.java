@@ -4,7 +4,7 @@ import java.awt.geom.Point2D;
 import java.util.*;
 
 public class RandomLabyrinth {
-    public static EuclideanInput generateLabyrinth(int size, double loadFactor) {
+    public static PlanarGraph generateLabyrinth(int size, double loadFactor) {
         // stores bitwise fields to indicate connections between cells
         // 1 - up, 2 - right, 4 - down, 8 - left
         int[][] directions = new int[size][size];
@@ -26,7 +26,7 @@ public class RandomLabyrinth {
         }
 
         Set<Point2D> points = new HashSet<>();
-        List<EuclideanInput.Segment> segments = new ArrayList<>();
+        List<PlanarGraph.Segment> segments = new ArrayList<>();
 
         for (int y = 0; y < size; y++) {
             extractSegments(0, y * 2, size, 1, 0, 1, 2, directions, points, segments);
@@ -36,14 +36,14 @@ public class RandomLabyrinth {
             extractSegments(x * 2, 0, size, 0, 1, 8, 4, directions, points, segments);
             extractSegments(x * 2 + 1, 0, size, 0, 1, 2, 4, directions, points, segments);
         }
-        return new EuclideanInput(new ArrayList<>(points), segments);
+        return new PlanarGraph(new ArrayList<>(points), segments);
     }
 
     private static void extractSegments(int x, int y, int size,
                                         int dx, int dy,
                                         int maskA, int maskB,
                                         int[][] directions,
-                                        Set<Point2D> points, List<EuclideanInput.Segment> segments) {
+                                        Set<Point2D> points, List<PlanarGraph.Segment> segments) {
         double sideLength = 0.7 * 2 / (size * 2 - 1);
         Point2D stt = new Point2D.Double(-0.7 + x * sideLength, -0.7 + y * sideLength);
         Point2D end = stt;
@@ -54,7 +54,7 @@ public class RandomLabyrinth {
                 if (!stt.equals(end)) {
                     points.add(stt);
                     points.add(end);
-                    segments.add(new EuclideanInput.Segment(stt, end));
+                    segments.add(new PlanarGraph.Segment(stt, end));
                 }
                 stt = new Point2D.Double(-0.7 + (x + dx) * sideLength, -0.7 + (y + dy) * sideLength);
                 end = stt;
@@ -66,7 +66,7 @@ public class RandomLabyrinth {
                 if (!stt.equals(end)) {
                     points.add(stt);
                     points.add(end);
-                    segments.add(new EuclideanInput.Segment(stt, end));
+                    segments.add(new PlanarGraph.Segment(stt, end));
                 }
                 stt = new Point2D.Double(-0.7 + (x + 2 * dx) * sideLength, -0.7 + (y + 2 * dy) * sideLength);
                 end = stt;

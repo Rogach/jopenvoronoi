@@ -7,7 +7,7 @@ import java.io.*;
 
 public class BugHunter {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         if (args.length > 0 && args[0].equals("reclassify")) {
             new BugHunter().reclassify();
         } else if (args.length > 0 && args[0].equals("collect")) {
@@ -17,17 +17,17 @@ public class BugHunter {
         }
     }
 
-    public void collectFailures() throws IOException {
+    public void collectFailures() throws Exception {
         while (true) {
-            EuclideanInput input =
-                EuclideanInput.fromPolygon(RandomPolygon.generate_polygon(4096));
+            PlanarGraph input =
+                PlanarGraph.fromPolygon(RandomPolygon.generate_polygon(4096));
             try {
                 input.buildVoronoiDiagram();
                 System.out.printf("☺");
                 System.out.flush();
             } catch (Throwable tOrig) {
                 System.out.println();
-                EuclideanInput minimized = minimizeFailure(input);
+                PlanarGraph minimized = minimizeFailure(input);
                 Throwable tMin = null;
                 try {
                     minimized.buildVoronoiDiagram();
@@ -37,22 +37,22 @@ public class BugHunter {
                 int id = new Random().nextInt(1000000);
                 String sz = sizeEstimate(input);
                 String fn = getFailureName(tOrig);
-                String f = String.format("failures/_%s-%s-%d.txt", fn, sz, id);
+                String f = String.format("failures/_%s-%s-%d.plsg.gz", fn, sz, id);
                 System.err.printf("Saving to %s\n", f);
-                input.writeToText(f);
+                input.writeToFile(f);
 
                 int mid = new Random().nextInt(1000000);
                 String msz = sizeEstimate(minimized);
                 String mfn = getFailureName(tMin);
-                String mf = String.format("failures/_%s-%s-%d.txt", mfn, msz, mid);
+                String mf = String.format("failures/_%s-%s-%d.plsg.gz", mfn, msz, mid);
                 tMin.printStackTrace();
                 System.err.printf("Saving to %s\n", mf);
-                minimized.writeToText(mf);
+                minimized.writeToFile(mf);
             }
         }
     }
 
-    public void reclassify() throws IOException {
+    public void reclassify() throws Exception {
         boolean assertionsOn = false;
         try {
             assert(false) : "false";
@@ -68,7 +68,7 @@ public class BugHunter {
         int newFailures = 0;
         Map<String, Throwable> catchedErrors = new HashMap<>();
         for (String f : new File("failures").list()) {
-            EuclideanInput input = EuclideanInput.readFromText("failures/" + f);
+            PlanarGraph input = PlanarGraph.readFromFile("failures/" + f);
 
             boolean isOrigFailure = !f.contains("noerror");
             boolean isInputValid = !isSelfIntersected(input);
@@ -119,7 +119,7 @@ public class BugHunter {
             for (StackTraceElement ste : t.getStackTrace()) {
                 if (ste.getClassName().startsWith("org.rogach.jopenvoronoi") &&
                     !ste.getClassName().startsWith("org.rogach.jopenvoronoi.BugHunter") &&
-                    !ste.getClassName().startsWith("org.rogach.jopenvoronoi.EuclideanInput")) {
+                    !ste.getClassName().startsWith("org.rogach.jopenvoronoi.PlanarGraph")) {
                     System.out.printf("    at %s.%s(%s:%s)\n",
                                       ste.getClassName(),
                                       ste.getMethodName(),
@@ -163,7 +163,7 @@ public class BugHunter {
         return bugNames.get(Math.abs(fingerprint.hashCode()) % bugNames.size());
     }
 
-    public static String sizeEstimate(EuclideanInput ei) {
+    public static String sizeEstimate(PlanarGraph ei) {
         if (ei.points.size() > 300) {
             return "huge";
         } else if (ei.points.size() > 50) {
@@ -175,7 +175,7 @@ public class BugHunter {
         }
     }
 
-    public static EuclideanInput minimizeFailure(EuclideanInput input) throws IOException {
+    public static PlanarGraph minimizeFailure(PlanarGraph input) throws IOException {
         System.out.printf("Minimizing input with %d points and %d segments\n",
                           input.points.size(), input.segments.size());
         Throwable origException = null;
@@ -188,7 +188,7 @@ public class BugHunter {
             System.out.println("No exception, nothing to minimize");
             return input;
         }
-        EuclideanInput current = input;
+        PlanarGraph current = input;
         int batch = current.points.size() / 2;
         while (true) {
             System.out.printf("\nAt the start of the iteration: %d points and %d segments\n",
@@ -199,12 +199,12 @@ public class BugHunter {
                 System.out.printf("@%dx%d@", batch, current.points.size() / batch);
                 System.out.flush();
                 for (int offset = 0; offset + batch <= current.segments.size(); offset += batch) {
-                    List<EuclideanInput.Segment> lessSegments =
+                    List<PlanarGraph.Segment> lessSegments =
                         new ArrayList<>(current.segments);
                     for (int q = offset; q < offset + batch; q++) {
                         lessSegments.remove(current.segments.get(q));
                     }
-                    EuclideanInput modified = new EuclideanInput(current.points, lessSegments);
+                    PlanarGraph modified = new PlanarGraph(current.points, lessSegments);
                     try {
                         modified.buildVoronoiDiagram();
                         System.out.printf("|");
@@ -225,7 +225,7 @@ public class BugHunter {
                     for (int q = offset; q < offset + batch; q++) {
                         Point2D p = current.points.get(q);
                         boolean includedInSegment = false;
-                        for (EuclideanInput.Segment s : current.segments) {
+                        for (PlanarGraph.Segment s : current.segments) {
                             if (s.stt.equals(p) || s.end.equals(p)) {
                                 includedInSegment = true;
                                 break;
@@ -237,7 +237,7 @@ public class BugHunter {
                         }
                     }
                     if (pointsRemoved > 0) {
-                        EuclideanInput modified = new EuclideanInput(lessPoints, current.segments);
+                        PlanarGraph modified = new PlanarGraph(lessPoints, current.segments);
                         try {
                             modified.buildVoronoiDiagram();
                             System.out.printf("*");
@@ -264,10 +264,10 @@ public class BugHunter {
         return current;
     }
 
-    public static boolean isSelfIntersected(EuclideanInput input) {
+    public static boolean isSelfIntersected(PlanarGraph input) {
         // check for intersecting segments
-        for (EuclideanInput.Segment s1 : input.segments) {
-            for (EuclideanInput.Segment s2 : input.segments) {
+        for (PlanarGraph.Segment s1 : input.segments) {
+            for (PlanarGraph.Segment s2 : input.segments) {
                 if (!s1.equals(s2) && // do not compare segment with itself
                     // do not count connected segments as intersecting
                     !s1.stt.equals(s2.end) && !s2.stt.equals(s1.end) && !s1.end.equals(s2.end)
@@ -281,7 +281,7 @@ public class BugHunter {
         }
 
         // check for points lying directly on other segments
-        for (EuclideanInput.Segment s : input.segments) {
+        for (PlanarGraph.Segment s : input.segments) {
             for (Point2D p : input.points) {
                 if (!p.equals(s.stt) && !p.equals(s.end)) {
                     if (Line2D.ptSegDist(s.stt.getX(), s.stt.getY(), s.end.getX(), s.end.getY(), p.getX(), p.getY()) < 1e-10) {

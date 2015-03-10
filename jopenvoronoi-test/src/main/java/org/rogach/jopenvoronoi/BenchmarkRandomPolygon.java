@@ -26,8 +26,8 @@ public class BenchmarkRandomPolygon extends Benchmark{
             vd.insert_line_site(vs.get(vs.size()-1), vs.get(0));
         } catch (Exception e) {
             try {
-                String f = String.format("failures/failure-%d.txt", new Random().nextInt(1000000));
-                EuclideanInput.fromPolygon(points).writeToText(f);
+                String f = String.format("failures/failure-%d.plsg.gz", new Random().nextInt(1000000));
+                PlanarGraph.fromPolygon(points).writeToFile(f);
             } catch (Exception e2) {
             }
             e.printStackTrace();
