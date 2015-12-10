@@ -30,8 +30,13 @@ public class Offset {
         offset_list = new ArrayList<OffsetLoop>();
         set_flags(t);
         Face start;
+        int c = 0;
         while ((start = find_start_face()) != null) { // while there are faces that still require offsets
             offset_loop_walk(start, t); // start on the face, and do an offset loop
+            if (c > 30000) {
+                throw new AssertionError("c > 30000, hang in offset walk");
+            }
+            c++;
         }
 
         return offset_list;
