@@ -44,5 +44,5 @@ SvgOutput.output(vd, "test.svg");
 
 License
 =======
-JOpenVoronoi is released under GPLv3 (see COPYING), same as it's parent
+JOpenVoronoi is released under LGPL v2.1 (see LICENSE), same as it's parent
  [openvoronoi](https://github.com/aewallin/openvoronoi) project.
